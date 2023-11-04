@@ -27,7 +27,7 @@ public final class AbstrTable<K extends Comparable<K>, V> implements IAbstrTable
     /**
      * Konstanta pro zvýšení velikosti stromu
      */
-    private final int ZVETSOVAC_VELIKOSTI = 1;
+    private final int ZVETSOVAC_MOHUTNOSTI = 1;
 
     /**
      * Privátní třída reprezentující uzel stromu. Každý uzel má klíč, hodnotu,
@@ -38,12 +38,15 @@ public final class AbstrTable<K extends Comparable<K>, V> implements IAbstrTable
         V hodnota;
         Uzel vlevo;
         Uzel vpravo;
-        int velikost;
+        Uzel rodic;
+        int mohutnost;
 
-        Uzel(K klic, V hodnota) {
+        Uzel(K klic, V hodnota, Uzel rodic) {
             this.klic = klic;
             this.hodnota = hodnota;
+            this.rodic = rodic;
             vlevo = vpravo = null;
+            mohutnost = ZVETSOVAC_MOHUTNOSTI;
         }
     }
 
@@ -101,8 +104,6 @@ public final class AbstrTable<K extends Comparable<K>, V> implements IAbstrTable
      *      </ol>
      * <li> Porovnává klíče aktuálního uzlu (prvku) a hledaného klíče pomocí metod
      * jednotlivých privátních metod pro zjišťování ekvivalence kličů
-     * <li> <b>Poznámka</b>: kód vracení hodnoty {@code null} na konci metody by neměl být dosažen,
-     * protože klíče by měly být porovnávány pomocí metod uvedených výše
      * </ol>
      *
      * @see AbstrTable#jeNula(Comparable, Comparable)
@@ -120,7 +121,7 @@ public final class AbstrTable<K extends Comparable<K>, V> implements IAbstrTable
         if (jeKladne(klic, uzel.klic))
             return najdiRekurzivne(uzel.vpravo, klic);
 
-        return null; // nedosažitelný kód
+        return null;
     }
 
     /**
@@ -143,10 +144,10 @@ public final class AbstrTable<K extends Comparable<K>, V> implements IAbstrTable
     @Override
     public void vloz(K klic, V hodnota) {
         if (koren == null)
-            koren = new Uzel(klic, hodnota);
+            koren = new Uzel(klic, hodnota, null);
          else
             vlozRekurzivne(klic, hodnota, koren);
-        koren.velikost += ZVETSOVAC_VELIKOSTI;
+        koren.mohutnost += ZVETSOVAC_MOHUTNOSTI;
     }
 
     /**
@@ -177,15 +178,16 @@ public final class AbstrTable<K extends Comparable<K>, V> implements IAbstrTable
     private void vlozRekurzivne(K klic, V hodnota, Uzel aktualniUzel) {
         if (jeKladne(aktualniUzel.klic, klic)) {
             if (aktualniUzel.vlevo == null)
-                aktualniUzel.vlevo = new Uzel(klic, hodnota);
+                aktualniUzel.vlevo = new Uzel(klic, hodnota, aktualniUzel);
              else
                 vlozRekurzivne(klic, hodnota, aktualniUzel.vlevo);
         } else {
             if (aktualniUzel.vpravo == null)
-                aktualniUzel.vpravo = new Uzel(klic, hodnota);
+                aktualniUzel.vpravo = new Uzel(klic, hodnota, aktualniUzel);
              else
                 vlozRekurzivne(klic, hodnota, aktualniUzel.vpravo);
         }
+        zvysMohutnost(aktualniUzel);
     }
 
 
@@ -236,123 +238,266 @@ public final class AbstrTable<K extends Comparable<K>, V> implements IAbstrTable
 //    }
 // </editor-fold>
 
-    /**
-     * Popis logiky:
-     * <ol>
-     * <li> Volá privátní rekurzivní metoda {@link AbstrTable#odeberRekurzivne(Uzel, Comparable)} s
-     * kořenem stromu a zadaným klíčem. Vrátí uzel, který reprezentuje odebraný prvek, nebo {@code null},
-     * pokud prvek nebyl nalezen.
-     * <li> Pokud je vrácen {@code null}:
-     *      <ol>
-     *      <li> Vyvolá výjimku `KolekceException` indikující, že prvek nebyl nalezen
-     *      </ol>
-     * <li> Vrátí hodnotu tohoto uzlu pokud je vrácen uzel reprezentující odebraný prvek
-     * </ol>
-     */
     @Override
     public V odeber(K klic) throws StromException {
-        final Uzel odebranyUzel = odeberRekurzivne(koren, klic);
-        if (odebranyUzel == null)
-            throw new StromException();
-        return odebranyUzel.hodnota;
+        return null;
     }
 
-    /**
-     * Popis logiky:
-     * <ol>
-     * <li> Pokud aktuální uzel je {@code null}:
-     *      <ol>
-     *      <li> Vrátí {@code null}, což znamená, že prvek s daným klíčem nebyl nalezen
-     *      </ol>
-     * <li> Jinak porovnává zadaný klíč s klíčem aktuálního uzlu. Pokud je klíč menší než klíč
-     * aktuálního uzlu:
-     *      <ol>
-     *      <li> Pokračuje v hledání v levém podstromu rekurzivním voláním této metody
-     *      </ol>
-     * <li> Pokud je klíč větší než klíč aktuálního uzlu:
-     *      <ol>
-     *      <li> Pokračuje v hledání v pravém podstromu rekurzivním voláním této metody
-     *      </ol>
-     * <li> Pokud se klíče rovnají, provádí se odebrání prvku:
-     *      <ol>
-     *      <li> Pokud aktuální uzel nemá pravý podstrom:
-     *          <ol>
-     *          <li> Vrátí levý podstrom (odebere aktuální uzel)
-     *          </ol>
-     *      <li> Pokud aktuální uzel nemá levý podstrom:
-     *          <ol>
-     *          <li> Vrátí pravý podstrom (odebere aktuální uzel)
-     *          </ol>
-     *      <li> Jinak:
-     *          <ol>
-     *          <li> <b>následující 2 řádky</b>: Najde nejmenší uzel (prvek) v pravém podstromu pomocí {@link AbstrTable#najdiMin(Uzel)}
-     *          <li> <b>následující 2 řádky</b>: Nahradí aktuální uzel tímto nejmenším uzlem
-     *          </ol>
-     *      </ol>
-     * <li> Aktualizuje velikost aktuálního uzlu jako součet velikostí jeho levého a pravého podstromu plus jedna
-     * </ol>
-     */
-    private Uzel odeberRekurzivne(Uzel uzel, K klic) {
-        if (uzel == null) return null;
+// <editor-fold defaultstate="collapsed" desc="Zakomentovaná implementace metody: odeber(K klic)">
+//    /**
+//     * Popis logiky:
+//     * <ol>
+//     * <li> Volá privátní rekurzivní metoda {@link AbstrTable#odeberRekurzivne(Uzel, Comparable)} s
+//     * kořenem stromu a zadaným klíčem. Vrátí uzel, který reprezentuje odebraný prvek, nebo {@code null},
+//     * pokud prvek nebyl nalezen.
+//     * <li> Pokud je vrácen {@code null}:
+//     *      <ol>
+//     *      <li> Vyvolá výjimku `KolekceException` indikující, že prvek nebyl nalezen
+//     *      </ol>
+//     * <li> Vrátí hodnotu tohoto uzlu pokud je vrácen uzel reprezentující odebraný prvek
+//     * </ol>
+//     */
+//    @Override
+//    public V odeber(K klic) throws StromException {
+//        final Uzel odebranyUzel = odeberRekurzivne(koren, klic);
+//        if (odebranyUzel == null)
+//            throw new StromException();
+//        return odebranyUzel.hodnota;
+//    }
+//    /**
+//     * Popis logiky:
+//     * <ol>
+//     * <li> Pokud aktuální uzel je {@code null}:
+//     *      <ol>
+//     *      <li> Vrátí {@code null}, což znamená, že prvek s daným klíčem nebyl nalezen
+//     *      </ol>
+//     * <li> Jinak porovnává zadaný klíč s klíčem aktuálního uzlu. Pokud je klíč menší než klíč
+//     * aktuálního uzlu:
+//     *      <ol>
+//     *      <li> Pokračuje v hledání v levém podstromu rekurzivním voláním této metody
+//     *      </ol>
+//     * <li> Pokud je klíč větší než klíč aktuálního uzlu:
+//     *      <ol>
+//     *      <li> Pokračuje v hledání v pravém podstromu rekurzivním voláním této metody
+//     *      </ol>
+//     * <li> Pokud se klíče rovnají, provádí se odebrání prvku:
+//     *      <ol>
+//     *      <li> Pokud aktuální uzel nemá pravý podstrom:
+//     *          <ol>
+//     *          <li> Vrátí levý podstrom (odebere aktuální uzel)
+//     *          </ol>
+//     *      <li> Pokud aktuální uzel nemá levý podstrom:
+//     *          <ol>
+//     *          <li> Vrátí pravý podstrom (odebere aktuální uzel)
+//     *          </ol>
+//     *      <li> Jinak:
+//     *          <ol>
+//     *          <li> <b>následující 2 řádky</b>: Najde nejmenší uzel (prvek) v pravém podstromu pomocí {@link AbstrTable#najdiMin(Uzel)}
+//     *          <li> <b>následující 2 řádky</b>: Nahradí aktuální uzel tímto nejmenším uzlem
+//     *          </ol>
+//     *      </ol>
+//     * <li> Aktualizuje velikost aktuálního uzlu jako součet velikostí jeho levého a pravého podstromu plus jedna
+//     * </ol>
+//     */
+//    private Uzel odeberRekurzivne(Uzel uzel, K klic) {
+//        if (uzel == null) return null;
+//
+//        if (jeZaporne(klic, uzel.klic))
+//            uzel.vlevo  = odeberRekurzivne(uzel.vlevo,  klic);
+//        else if (jeKladne(klic, uzel.klic))
+//            uzel.vpravo = odeberRekurzivne(uzel.vpravo, klic);
+//        else {
+//            if (uzel.vpravo == null) return uzel.vlevo;
+//            if (uzel.vlevo  == null) return uzel.vpravo;
+//            final Uzel docasnyUzel = uzel;
+//            uzel = najdiMin(docasnyUzel.vpravo);
+//            uzel.vpravo = odeberMin(docasnyUzel.vpravo);
+//            uzel.vlevo = docasnyUzel.vlevo;
+//        }
+//        uzel.hmotnost = ZVETSOVAC_HMOTNOSTI + hmotnost(uzel.vlevo) + hmotnost(uzel.vpravo);
+//        return uzel;
+//    }
+//
+//    /**
+//     * Privátní pomocní metoda pro {@link AbstrTable#odeber(Comparable)}
+//     *
+//     * <p>Najde nejmenší uzel (prvek) v daném podstromu
+//     *
+//     * @param podstrom Aktuální uzel (prvek), ze kterého metoda začne hledat
+//     *
+//     * @return Nejmenší uzel (prvek) v podstromu
+//     */
+//    private Uzel najdiMin(Uzel podstrom) {
+//        if (podstrom.vlevo == null)
+//            return podstrom;
+//        return najdiMin(podstrom.vlevo);
+//    }
+//
+//    /**
+//     * Privátní pomocní metoda pro {@link AbstrTable#odeber(Comparable)}
+//     *
+//     * <p> Popis logiky:
+//     * <ol>
+//     * <li> Pokud daný uzel nemá levý podstrom:
+//     *      <ol>
+//     *      <li> Vrátí pravý podstrom
+//     *      </ol>
+//     * <li> Pokud má levý podstrom:
+//     *      <ol>
+//     *      <li> Rekurzivně pokračuje v hledání nejmenšího uzlu v levém podstromu
+//     *      <li> Aktualizuje velikost uzlu jako součet velikostí jeho levého a pravého podstromu
+//     *      plus jedna
+//     *      </ol>
+//     * </ol>
+//     *
+//     * @param podstrom Aktuální uzel (prvek), ve kterém se hledá nejmenší prvek
+//     *
+//     * @return Podstrom s odebraným nejmenším uzlem (prvkem)
+//     */
+//    private Uzel odeberMin(Uzel podstrom) {
+//        if (podstrom.vlevo == null) return podstrom.vpravo;
+//        podstrom.vlevo = odeberMin(podstrom.vlevo);
+//        podstrom.hmotnost = ZVETSOVAC_HMOTNOSTI + hmotnost(podstrom.vlevo) + hmotnost(podstrom.vpravo);
+//        return podstrom;
+//    }
+//
+//    /**
+//     * Vrací hmotnost (počet prvků) uzlu včetně jeho podstromů
+//     *
+//     * @param uzel Uzel stromu, pro který chcete zjistit hmotnost
+//     *
+//     * @return Hmotnost uzlu, což je počet prvků v podstromu daného uzlu
+//     */
+//    private int hmotnost(Uzel uzel) { return uzel == null ? NULTA_HODNOTA : uzel.hmotnost; }
 
-        if (jeZaporne(klic, uzel.klic))
-            uzel.vlevo  = odeberRekurzivne(uzel.vlevo,  klic);
-        else if (jeKladne(klic, uzel.klic))
-            uzel.vpravo = odeberRekurzivne(uzel.vpravo, klic);
-        else {
-            if (uzel.vpravo == null) return uzel.vlevo;
-            if (uzel.vlevo  == null) return uzel.vpravo;
-            final Uzel docasnyUzel = uzel;
-            uzel = najdiMin(docasnyUzel.vpravo);
-            uzel.vpravo = odeberMin(docasnyUzel.vpravo);
-            uzel.vlevo = docasnyUzel.vlevo;
+//    public V odeber(K klic) throws StromException {
+//        AbstrLifo<Uzel> zasobnik = new AbstrLifo<>();
+//        Uzel aktualniUzel = koren;
+//        Uzel predchoziUzel = null;
+//
+//        while (aktualniUzel != null || !zasobnik.jePrazdny()) {
+//            if (aktualniUzel != null) {
+//                zasobnik.vloz(aktualniUzel);
+//                predchoziUzel = aktualniUzel;
+//                int porovnani = klic.compareTo(aktualniUzel.klic);
+//                if (porovnani == 0) {
+//                    if (predchoziUzel == null) {
+//                        koren = null;
+//                    } else if (predchoziUzel.vlevo == aktualniUzel) {
+//                        predchoziUzel.vlevo = null;
+//                    } else {
+//                        predchoziUzel.vpravo = null;
+//                    }
+//                    koren.mohutnost -= ZVETSOVAC_MOHUTNOSTI;
+//                    return aktualniUzel.hodnota;
+//                } else if (porovnani < 0) {
+//                    aktualniUzel = aktualniUzel.vlevo;
+//                } else {
+//                    aktualniUzel = aktualniUzel.vpravo;
+//                }
+//            } else {
+//                try {
+//                    aktualniUzel = zasobnik.odeber();
+//                } catch (StrukturaException e) {
+//                    throw new StromException();
+//                }
+//            }
+//        }
+//        throw new StromException();
+//    }
+// </editor-fold>
+
+// <editor-fold defaultstate="collapsed" desc="Zakomentovaná implementace metody: vypisStrom()">
+    public String vypisStrom() throws StrukturaException {
+        if (jePrazdny()) {
+            return "Strom je prázdný.";
         }
-        uzel.velikost = uzel.vlevo.velikost + uzel.vpravo.velikost + 1;
-        return uzel;
+
+        StringBuilder stromText = new StringBuilder();
+        AbstrLifo<Uzel> zasobnik = new AbstrLifo<>();
+        Uzel aktUzel = koren;
+
+        while (aktUzel != null || !zasobnik.jePrazdny()) {
+            while (aktUzel != null) {
+                zasobnik.vloz(aktUzel);
+                aktUzel = aktUzel.vlevo;
+            }
+
+            aktUzel = zasobnik.odeber();
+            String vztah = "kořen";
+            if (aktUzel != koren) {
+                if (aktUzel.klic.compareTo(aktUzel.rodic.klic) < 0) {
+                    vztah = "je vlevo od " + aktUzel.rodic.klic;
+                } else {
+                    vztah = "je vpravo od " + aktUzel.rodic.klic;
+                }
+            }
+            stromText.append(aktUzel.klic).append(" (").append(vztah).append(")").append(System.lineSeparator());
+
+            aktUzel = aktUzel.vpravo;
+        }
+
+        return stromText.toString();
     }
 
-    /**
-     * Privátní pomocní metoda pro {@link AbstrTable#odeber(Comparable)}
-     *
-     * <p>Najde nejmenší uzel (prvek) v daném podstromu
-     *
-     * @param aktualniUzel Aktuální uzel (prvek), ze kterého metoda začne hledat
-     *
-     * @return Nejmenší uzel (prvek) v podstromu
-     */
-    private Uzel najdiMin(Uzel aktualniUzel) {
-        if (aktualniUzel.vlevo == null)
-            return aktualniUzel;
-        return najdiMin(aktualniUzel.vlevo);
-    }
+//    /**
+//     * Vytvoří textový popis stromu, který zobrazuje jeho strukturu a vztahy mezi uzly
+//     *
+//     * <p> Kód demonstrující vložení několika prvků do stromu, jejich odebrání a výpis struktury stromu:
+//     * <code>
+//     *     <pre>
+//     *     final AbstrTable&lt;Integer, String&gt; strom = new AbstrTable&lt;&gt;();
+//     *     strom.vloz(5, "A");
+//     *     strom.vloz(3, "B");
+//     *     strom.vloz(7, "C");
+//     *     strom.vloz(2, "D");
+//     *     strom.vloz(4, "E");
+//     *     strom.vloz(6, "F");
+//     *     strom.vloz(8, "G");
+//     *
+//     *     System.out.println("Strom před odebráním:");
+//     *     System.out.println(strom.vypisStrom());
+//     *
+//     *     try {
+//     *         strom.odeber(3); // Odebrání uzlu s klíčem 3
+//     *         System.out.println("Strom po odebrání uzlu s klíčem 3:");
+//     *         System.out.println(strom.vypisStrom());
+//     *     } catch (StromException e) {
+//     *         System.err.println("Chyba při odebírání uzlu: Uzel nebyl nalezen.");
+//     *     }
+//     *     </pre>
+//     * </code>
+//     * @return Textový popis stromu jako řetězec
+//     */
+//    public String vypisStrom() { return vypisStromRekurzivne(koren, null); }
+//
+//    /**
+//     * Vytvoří textový popis stromu rekurzivně, který zobrazuje jeho strukturu a vztahy mezi uzly
+//     *
+//     * @param uzel   Aktuální uzel, který se má popsat
+//     * @param rodic  Rodič aktuálního uzlu
+//     *
+//     * @return Textový popis aktuálního uzlu a jeho potomků jako řetězec
+//     */
+//    private String vypisStromRekurzivne(Uzel uzel, Uzel rodic) {
+//        if (uzel == null)
+//            return "";
+//
+//        String popisUzlu = uzel.klic.toString();
+//        if (rodic != null) {
+//            if (uzel == rodic.vlevo) {
+//                popisUzlu += " je vlevo od " + rodic.klic;
+//            } else {
+//                popisUzlu += " je vpravo od " + rodic.klic;
+//            }
+//        } else popisUzlu += " (kořen)";
+//        popisUzlu += "\n";
+//        return popisUzlu +
+//                vypisStromRekurzivne(uzel.vlevo, uzel) +
+//                vypisStromRekurzivne(uzel.vpravo, uzel);
+//    }
+// </editor-fold>
 
-    /**
-     * Privátní pomocní metoda pro {@link AbstrTable#odeber(Comparable)}
-     *
-     * <p> Popis logiky:
-     * <ol>
-     * <li> Pokud daný uzel nemá levý podstrom:
-     *      <ol>
-     *      <li> Vrátí pravý podstrom
-     *      </ol>
-     * <li> Pokud má levý podstrom:
-     *      <ol>
-     *      <li> Rekurzivně pokračuje v hledání nejmenšího uzlu v levém podstromu
-     *      <li> Aktualizuje velikost uzlu jako součet velikostí jeho levého a pravého podstromu
-     *      plus jedna
-     *      </ol>
-     * </ol>
-     *
-     * @param uzel Aktuální uzel (prvek), ve kterém se hledá nejmenší prvek
-     *
-     * @return Podstrom s odebraným nejmenším uzlem (prvkem)
-     */
-    private Uzel odeberMin(Uzel uzel) {
-        if (uzel.vlevo == null) return uzel.vpravo;
-        uzel.vlevo = odeberMin(uzel.vlevo);
-        uzel.velikost = uzel.vlevo.velikost + uzel.vpravo.velikost + 1;
-        return uzel;
-    }
 
     /**
      * Vytvoří nový iterátor pro průchod binárním stromem v zadaném režimu
@@ -477,6 +622,10 @@ public final class AbstrTable<K extends Comparable<K>, V> implements IAbstrTable
             }
         }
     }
+
+    private void zvysMohutnost(Uzel uzel) { uzel.mohutnost++; }
+
+    private void snizMohutnost(Uzel uzel) { uzel.mohutnost--; }
 
     /**
      * Porovná výsledek metody compareTo s nulou

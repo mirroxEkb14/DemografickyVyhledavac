@@ -53,6 +53,6 @@ public final class AbstrFifo<T> {
      *
      * @return Počet prvků ve frontě
      */
-    public int velikost() { return fronta.velikost(); }
+    public int mohutnost() { return fronta.velikost(); }
 }
 

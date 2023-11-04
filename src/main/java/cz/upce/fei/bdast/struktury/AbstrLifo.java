@@ -15,7 +15,7 @@ import java.util.Stack;
  */
 public class AbstrLifo<T> {
 
-    private IAbstrDoubleList<T> zasobnik;
+    private final IAbstrDoubleList<T> zasobnik;
 
     /**
      * Konstruktor vytváří instanci zásobníku
@@ -36,7 +36,11 @@ public class AbstrLifo<T> {
      *
      * @throws StrukturaException Pokud je zásobník prázdný a nelze odebrat prvek
      */
-    public T odeber() throws StrukturaException { return zasobnik.odeberPosledni(); }
+    public T odeber() throws StrukturaException {
+        if (jePrazdny())
+            throw new StrukturaException();
+        return zasobnik.odeberPrvni();
+    }
 
     /**
      * Vrátí prvek z vrcholu zásobníku bez jeho odebrání (peek)
@@ -57,7 +61,7 @@ public class AbstrLifo<T> {
      *
      * @return Počet prvků v zásobníku
      */
-    public int velikost() { return zasobnik.velikost(); }
+    public int mohutnost() { return zasobnik.velikost(); }
 
     /**
      * Odstraní všechny prvky ze zásobníku, čímž ho vyprázdní (clear)
