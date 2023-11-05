@@ -3,6 +3,7 @@ package cz.upce.fei.bdast.strom;
 import cz.upce.fei.bdast.struktury.AbstrFifo;
 import cz.upce.fei.bdast.struktury.AbstrLifo;
 import cz.upce.fei.bdast.struktury.StrukturaException;
+import org.jetbrains.annotations.NotNull;
 
 import java.util.Iterator;
 import java.util.NoSuchElementException;
@@ -139,9 +140,41 @@ public final class AbstrTable<K extends Comparable<K>, V> implements IAbstrTable
 
 
     /**
-     * Stručný popis logiký:
+     * Popis logiký jednotlivých bloků kódu:
      * <ol>
-     * <li> <b>najdiUzel(klic)</b>
+     * <li> Provádí počáteční ověření vstupního klíče {@code klic} a existence kořene stromu
+     *      <ul>
+     *      <li> <b>pozadatNePrazdnyKlic()</b>
+     *      <li> <b>pozadatNePrazdnyKoren()</b>
+     *      </ul>
+     * <li> Hledá {@code uzel} s odpovídajícím klíčem {@code klic} a zkontroluje ho na {@code null}
+     *      <ul>
+     *      <li> <b>najdiUzel()</b>
+     *      <li> <b>if (uzel == null)</b>
+     *      </ul>
+     * <li> Připraví proměnnou {@code odebranaHodnota} pro následný návrat. Pak ověří existence obou
+     * potomků u uzlu {@code uzel}
+     *      <ul>
+     *      <li> <b>final V odebranaHodnota = uzel.hodnota</b>
+     *      <li> <b>if (jsouObaPotomky(uzel))</b>: Zjišťuje následníka uzlu, tj. uzel s nejnižším
+     *      klíčem v pravém podstromu, pak klíč a hodnota následníka jsou přesunuty na aktuální uzel
+     *      {@code uzel}, čímž odebere aktuální uzel a přesune se k následníkovi
+     *      </ul>
+     * <li> Zpracovává případy, kdy uzel má buď levého nebo pravého potomka, nebo je listem
+     *      <ul>
+     *      <li> <b>if (jeLevyPotomek(uzel))</b>: {@code uzel} (minule následník uzlu) má levého potomka,
+     *      a proto tento {@code uzel} bude nahrazen jeho levým potomkem
+     *      <li> <b>else if (jePravyPotomek(uzel))</b>: {@code uzel} má pravého potomka, a proto provede
+     *      obdobnou operaci s pravým potomkem
+     *      <li> <b>else if (jeListem(uzel))</b> {@code uzel} je listem, a proto odstraní ten samý {@code uzel}
+     *      </ul>
+     * <li> Aktualizuje mohutnost uzlů po odebrání
+     *      <ul>
+     *      <li> <b>aktualizujMohutnostPoOdebirani(uzel)</b>: Postupně prochází uzly na cestě od odebraného
+     *      uzlu ke kořeni a snižuje jejich mohutnost o jedničku, čímž udržuje konzistenci mohutnosti v rámci
+     *      stromu
+     *      <li> <b>return odebranaHodnota</b>
+     *      </ul>
      * </ol>
      */
     @Override
@@ -154,20 +187,37 @@ public final class AbstrTable<K extends Comparable<K>, V> implements IAbstrTable
             throw new StromException(ChybovaZprava.PRVEK_NENALEZEN.getZprava());
 
         final V odebranaHodnota = uzel.hodnota;
-        if (jeListem(uzel)) {
-            odeberList(uzel);
-        } else if (jsouObaPotomky(uzel)) {
-            Uzel naslednik = najdiNaslednika(uzel);
+        if (jsouObaPotomky(uzel)) {
+            final Uzel naslednik = najdiNaslednika(uzel);
             uzel.klic = naslednik.klic;
             uzel.hodnota = naslednik.hodnota;
-            odeberNaslednika(naslednik);
-        } else if (jeJedenPotomek(uzel)) {
-            odeberJednohoPotomka(uzel);
+            uzel = naslednik;
         }
-        aktualizujMohutnostPoOdebrani(uzel);
+
+        if (jeLevyPotomek(uzel)) {
+            odeberUzelSJednimPotomkem(uzel, uzel.vlevo);
+        } else if (jePravyPotomek(uzel)) {
+            odeberUzelSJednimPotomkem(uzel, uzel.vpravo);
+        } else if (jeListem(uzel)) {
+            odeberUzelBezPotomku(uzel);
+        }
+
+        aktualizujMohutnostPoOdebirani(uzel);
         return odebranaHodnota;
     }
 
+    /**
+     * Pomocná metoda pro {@link AbstrTable#odeber(Comparable)}
+     *
+     * <p> Popis logiky:
+     * <ol>
+     * <li> <b>iterator.hasNext()</b>: Začíná iterací od kořene stromu a postupně prochází uzly stromu hloubkově
+     * (in-order) - nejdříve prochází levé podstromy, pak uzly a nakonec pravé podstromy
+     * <li> <b>jeNula()</b>: Pokud nalezne uzel se shodným klíčem, vrátí tento uzel - {@code uzel}
+     * <li> <b>return null</b>: Pokud projde celý strom a nenajde uzel shodný s cílovým klíčem, vrátí {@code null}
+     * (tj. hledaný uzel v stromu neexistuje)
+     * </ol>
+     */
     private Uzel najdiUzel(K klic) {
         final HloubkaIterator iterator = new HloubkaIterator();
         Uzel uzel;
@@ -179,91 +229,143 @@ public final class AbstrTable<K extends Comparable<K>, V> implements IAbstrTable
         return null;
     }
 
+    /**
+     * Pomocná metoda pro {@link AbstrTable#odeber(Comparable)}
+     *
+     * <p> Popis logiky:
+     * <ol>
+     * <li> <b>maPravehoPotomka(uzel)</b>: Pokud uzel má pravého potomka, najde nejlevější uzel v rámci tohoto
+     * pravého podstromu (tj. najde první uzel v {@code in-order} následování)
+     * <li> <b>while()</b>: Pokud uzel nemá pravého potomka, hledá prvního předka, jehož levý potomek je tento uzel.
+     * To znamená, že se metoda vrátí k rodiči uzlu a postupně posune vzhůru po stromě a hledá rodiče, kteří ještě
+     * nemají tento uzel jako pravého potomka. Jakmile najde takového rodiče nebo dojde k samotnému kořeni stromu,
+     * vrátí tento uzel jako následníka (např. samotný kořen)
+     * </ol>
+     */
     private Uzel najdiNaslednika(Uzel uzel) {
-        if (uzel.vpravo != null) {
-            // Pokud uzel má pravého potomka, najdeme nejlevějšího uzlu v pravém podstromu
+        if (jePravyPotomek(uzel)) {
             uzel = uzel.vpravo;
-            while (uzel.vlevo != null) {
+            while (uzel.vlevo != null)
                 uzel = uzel.vlevo;
-            }
             return uzel;
-        } else {
-            // Pokud uzel nemá pravého potomka, hledáme prvního předka, jehož levý potomek je tento uzel
-            Uzel rodic = uzel.rodic;
-            while (rodic != null && uzel == rodic.vpravo) {
-                uzel = rodic;
-                rodic = uzel.rodic;
-            }
-            return rodic;
         }
+        Uzel rodic = uzel.rodic;
+        while (rodic != null && uzel == rodic.vpravo) {
+            uzel = rodic;
+            rodic = uzel.rodic;
+        }
+        return rodic;
     }
 
-    private void odeberList(Uzel uzel) {
-        if (uzel.rodic == null) {
-            koren = null;
-        } else if (jeLevymPotomkem(uzel)) {
-            uzel.rodic.vlevo = null;
-        } else {
-            uzel.rodic.vpravo = null;
-        }
-    }
-
-    private void odeberNaslednika(Uzel naslednik) {
-        if (naslednik == naslednik.rodic.vlevo) {
-            naslednik.rodic.vlevo = naslednik.vpravo;
-        } else {
-            naslednik.rodic.vpravo = naslednik.vpravo;
-        }
-        if (naslednik.vpravo != null) {
-            naslednik.vpravo.rodic = naslednik.rodic;
-        }
-    }
-
-    private void odeberJednohoPotomka(Uzel uzel) {
-        Uzel potomek = (uzel.vlevo != null) ? uzel.vlevo : uzel.vpravo;
-        if (uzel.rodic == null) {
-            // Pokud je uzel kořenem stromu
+    /**
+     * Pomocná metoda pro {@link AbstrTable#odeber(Comparable)}
+     *
+     * <p> Slouží k odstranění uzlu, který má právě jednoho potomka, a následné připojení tohoto potomka na místo
+     * odebraného uzlu
+     *
+     * <p> Popis logiky:
+     * <ol>
+     * <li> <b>jeKorenem()</b>: Aktualizuje kořen, čímž se potomek stane novým kořenem stromu
+     * <li> <b>jeLevymPotomkem()</b>: Připojí potomka na místo odebraného uzlu (tj. na levý potomek svého rodiče),
+     * což znamená, že potomek se stane novým levým potomkem rodiče odebraného uzlu
+     * <li> <b>jePravymPotomkem()</b>: Potomek se připojí na místo odebraného uzlu (tj. potomek se stane novým
+     * pravým potomkem rodiče odebraného uzlu)
+     * <li> <b>potomek.rodic = uzel.rodic</b>: Aktualizuje rodiče potomka tak, aby ukazoval na rodiče odebraného
+     * uzlu
+     * </ol>
+     *
+     * @param uzel Prvek, který má být odebrán
+     * @param potomek Prvek, který bude připojen na místo odebraného uzlu
+     */
+    private void odeberUzelSJednimPotomkem(Uzel uzel, Uzel potomek) {
+        if (jeKorenem(uzel))
             koren = potomek;
-        } else if (uzel == uzel.rodic.vlevo) {
+        else if (jeLevymPotomkem(uzel))
             uzel.rodic.vlevo = potomek;
-        } else {
+        else if (jePravymPotomkem(uzel))
             uzel.rodic.vpravo = potomek;
-        }
-        if (potomek != null) {
-            potomek.rodic = uzel.rodic;
-        }
+        potomek.rodic = uzel.rodic;
     }
 
-    private void aktualizujMohutnostPoOdebrani(Uzel uzel) {
+    /**
+     * Pomocná metoda pro {@link AbstrTable#odeber(Comparable)}
+     *
+     * <p> Popis logiky:
+     * <ol>
+     * <li> <b>jeKorenem()</b>: Nastaví kořen stromu na {@code null}, protože odebraný uzel je kořenem stromu.
+     * Celý strom je tedy prázdný
+     * <li> <b>jeLevymPotomkem()</b>: Nastaví levý potomek rodiče na {@code null}, protože odebraný uzel je
+     * levým potomkem svého rodiče
+     * <li> <b>jePravymPotomkem()</b>: Nastaví pravý potomek rodiče na {@code null}, protože odebraný uzel je
+     * pravým potomkem svého rodiče
+     * </ol>
+     *
+     * @param uzel Prvek, který má být odebrán
+     */
+    private void odeberUzelBezPotomku(Uzel uzel) {
+        if (jeKorenem(uzel))
+            koren = null;
+        else if (jeLevymPotomkem(uzel))
+            uzel.rodic.vlevo = null;
+        else if (jePravymPotomkem(uzel))
+            uzel.rodic.vpravo = null;
+    }
+
+    /**
+     * Pomocná metoda pro {@link AbstrTable#odeber(Comparable)}
+     *
+     * <p> Popis logiky:
+     * <ol>
+     * <li> <b>snizMohutnost()</b>: Sníží mohutnost aktuálního uzlu uzel o jedničku
+     * <li> <b>uzel = uzel.rodic</b>: Přesune se k rodiči aktuálního uzlu tím, že {@code uzel} se nastaví na
+     * svého rodiče a pokračuje, dokud se nedostane až ke kořeni stromu (nebo dokud {@code uzel} není {@code null}),
+     * čímž zajišťuje procházení všech uzlů na cestě od odebraného uzlu ke kořeni a snižuje jejich mohutnost
+     * </ol>
+     *
+     * @param uzel Prvek, který byl odebrán
+     */
+    private void aktualizujMohutnostPoOdebirani(Uzel uzel) {
         while (uzel != null) {
-            snizMohutnost(uzel); // Snížíme mohutnost všech předků uzlu o 1
-            uzel = uzel.rodic; // Přesuneme se k rodiči
+            snizMohutnost(uzel);
+            uzel = uzel.rodic;
         }
     }
 
-    private boolean jeListem(Uzel uzel) {
-        return uzel.vlevo == null && uzel.vpravo == null;
-    }
-
-    private boolean jsouObaPotomky(Uzel uzel) {
+// <editor-fold defaultstate="collapsed" desc="Pomocné zjišťovací metody typu Boolean pro: V odeber(K klic)">
+    private boolean jsouObaPotomky(@NotNull Uzel uzel) {
         return uzel.vlevo != null && uzel.vpravo != null;
     }
 
-    private boolean jeJedenPotomek(Uzel uzel) {
-        return uzel.vlevo != null || uzel.vpravo != null;
+    private boolean jePravyPotomek(@NotNull Uzel uzel) {
+        return uzel.vpravo != null;
     }
 
-    private boolean jeKorenem(Uzel uzel) {
+    private boolean jeLevyPotomek(@NotNull Uzel uzel) {
+        return uzel.vlevo != null;
+    }
+
+    private boolean jeKorenem(@NotNull Uzel uzel) {
         return uzel.rodic == null;
     }
 
-    private boolean jeLevymPotomkem(Uzel uzel) {
+    private boolean jeListem(@NotNull Uzel uzel) {
+        return uzel.vlevo == null && uzel.vpravo == null;
+    }
+
+    private boolean jeLevymPotomkem(@NotNull Uzel uzel) {
         return uzel == uzel.rodic.vlevo;
     }
 
-    private boolean jePravymPotomkem(Uzel uzel) {
+    private boolean jePravymPotomkem(@NotNull Uzel uzel) {
         return uzel == uzel.rodic.vpravo;
     }
+// </editor-fold>
+
+// <editor-fold defaultstate="collapsed" desc="Pomocné metody typu Void pro změnu mohutnosti uzlů">
+    private void zvysMohutnost(Uzel uzel) { uzel.mohutnost++; }
+
+    private void snizMohutnost(Uzel uzel) { uzel.mohutnost--; }
+// </editor-fold>
 
     /**
      * Vytvoří nový iterátor pro průchod binárním stromem v zadaném režimu
@@ -402,10 +504,6 @@ public final class AbstrTable<K extends Comparable<K>, V> implements IAbstrTable
             }
         }
     }
-
-    private void zvysMohutnost(Uzel uzel) { uzel.mohutnost++; }
-
-    private void snizMohutnost(Uzel uzel) { uzel.mohutnost--; }
 
     /**
      * Porovná výsledek metody compareTo s nulou
