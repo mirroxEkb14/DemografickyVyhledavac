@@ -44,7 +44,7 @@ public interface IAbstrTable<K extends Comparable<K>, V> {
      *
      * @return Hodnota přiřazená k zadanému klíči
      *
-     * @throws StromException pokud prvek s daným klíčem není nalezen
+     * @throws StromException Pokud prvek s daným klíčem není nalezen
      */
     V najdi(K klic) throws StromException;
 
@@ -53,8 +53,10 @@ public interface IAbstrTable<K extends Comparable<K>, V> {
      *
      * @param klic Klíč, pod kterým se má prvek vložit
      * @param hodnota Prvek, který se má vložit do tabulky
+     *
+     * @throws StromException Pokud daný klíč je prázdný
      */
-    void vloz(K klic, V hodnota);
+    void vloz(K klic, V hodnota) throws StromException;
 
     /**
      * Odebere prvek dle klíče z tabulky
@@ -63,17 +65,20 @@ public interface IAbstrTable<K extends Comparable<K>, V> {
      *
      * @return Odebraná hodnota
      *
-     * @throws StromException pokud prvek s daným klíčem není nalezen
+     * @throws StromException Pokud prvek s daným klíčem není nalezen
      */
     V odeber(K klic) throws StromException;
 
     /**
      * Vytvoří iterátor, který umožňuje  procházení stromu do šířky/hloubky (in-order)
      *
+     * <p> Metoda je obecná a schopná vracet iterátory různých generických typů, je mozmé použít
+     * &lt;?&gt; jako zástupný typ (wildcard type)
+     *
      * @param typ Typ prohlížení {@link ETypProhl} - může být například in-order, pre-order,
      *            post-order, atd.
      *
      * @return {@link Iterator} pro procházení stromu
      */
-    Iterator<K> vytvorIterator (ETypProhl typ);
+    Iterator<?> vytvorIterator(ETypProhl typ);
 }

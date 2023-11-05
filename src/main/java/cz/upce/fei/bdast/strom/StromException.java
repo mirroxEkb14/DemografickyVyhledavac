@@ -1,9 +1,16 @@
 package cz.upce.fei.bdast.strom;
 
 /**
- *
+ * Výjimková třída, která rozšiřuje základní obecnou třídu výjimky {@link Exception} aslouží k reprezentaci
+ * výjimek, které mohou nastat při práci s datovou strukturou Strom
  */
 public class StromException extends Exception {
 
-    public StromException() {}
+    /**
+     * Konstruktor předává chybovou zprávu konstruktoru předka {@link Exception}, čímž je možné
+     * nastavit popis chyby pro tuto výjimku
+     *
+     * @param zprava Řetězec jako popis chyby
+     */
+    public StromException(String zprava) { super(zprava); }
 }

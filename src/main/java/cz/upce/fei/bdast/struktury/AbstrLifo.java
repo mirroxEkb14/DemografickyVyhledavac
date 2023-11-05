@@ -61,7 +61,7 @@ public class AbstrLifo<T> {
      *
      * @return Počet prvků v zásobníku
      */
-    public int mohutnost() { return zasobnik.velikost(); }
+    public int mohutnost() { return zasobnik.mohutnost(); }
 
     /**
      * Odstraní všechny prvky ze zásobníku, čímž ho vyprázdní (clear)

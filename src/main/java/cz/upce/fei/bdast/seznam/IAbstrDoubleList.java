@@ -193,7 +193,7 @@ public interface IAbstrDoubleList<T> extends Iterable<T> {
      *
      * @return vrací hodnotu s počtem dat v seznamu
      */
-    int velikost();
+    int mohutnost();
 
     /**
      * Metoda převede obsah seznamu na datový proud, který předá při návratu

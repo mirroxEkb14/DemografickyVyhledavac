@@ -104,7 +104,7 @@ public class AbstrDoubleList<T> implements IAbstrDoubleList<T> {
 
     @Override
     public boolean jePrazdny() {
-        return pocet == 0;
+        return pocet == KONTROLUJICI_NULA;
     }
 
     /**
@@ -633,7 +633,7 @@ public class AbstrDoubleList<T> implements IAbstrDoubleList<T> {
     }
 
     @Override
-    public int velikost() { return pocet; }
+    public int mohutnost() { return pocet; }
 
     /**
      * Privátní pomocní metoda.
