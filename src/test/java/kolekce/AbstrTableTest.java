@@ -137,14 +137,10 @@ public class AbstrTableTest {
     /**
      * Test pro vyhledání klíče v prázdném stromu
      */
-    @Test
-    public void test_01_06_najdi() {
-        try {
-            String result = strom.najdi(KLIC_A);
-            fail(NEOCEKAVANY_STROM_EXCEPTION);
-        } catch (StromException ex) {
-            assertEquals(ChybovaZprava.PRVEK_NENALEZEN.getZprava(), ex.getMessage());
-        }
+    @Test(expected = StromException.class)
+    public void test_01_06_najdi() throws StromException {
+        String result = strom.najdi(KLIC_A);
+        fail();
     }
 
     /**
@@ -251,5 +247,114 @@ public class AbstrTableTest {
     public void test_02_06_vloz() {
         assertThrows(StromException.class,
                 () -> strom.vloz(null, HODNOTA_A));
+    }
+
+    /**
+     * Ověřuje, zda metoda vyhodí výjimku, když se pokusí odebrat prvek z prázdného stromu
+     */
+    @Test(expected = StromException.class)
+    public void test_03_01_odeber() throws StromException {
+        strom.odeber(KLIC_A);
+        fail();
+    }
+
+    /**
+     * Kontroluje, zda metoda vyhodí výjimku, když se pokusí odebrat prvek, který v stromu neexistuje
+     */
+    @Test(expected = StromException.class)
+    public void test_03_02_odeber() throws StromException {
+        strom.vloz(KLIC_A, HODNOTA_A);
+        strom.vloz(KLIC_B, HODNOTA_B);
+
+        strom.odeber(KLIC_C);
+        fail();
+    }
+
+    /**
+     * Ověřuje, že metoda správně odebere prvek (list) ze stromu
+     */
+    @Test
+    public void test_03_03_odeber() {
+        try {
+            strom.vloz(KLIC_A, HODNOTA_A);
+
+            String result = strom.odeber(KLIC_A);
+            String expected = HODNOTA_A;
+            assertEquals(expected, result);
+            assertTrue(strom.jePrazdny());
+        } catch (StromException ex) {
+            fail();
+        }
+    }
+
+    /**
+     * Kontroluje, zda metoda správně odebere prvek, který má jednoho potomka vlevo
+     */
+    @Test
+    public void test_03_04_odeber() {
+        try {
+            strom.vloz(KLIC_A, HODNOTA_A);
+            strom.vloz(KLIC_B, HODNOTA_B);
+
+            String result = strom.odeber(KLIC_B);
+            String expected = HODNOTA_B;
+            assertEquals(expected, result);
+            assertFalse(strom.jePrazdny());
+
+            assertThrows(
+                    StromException.class,
+                    () -> strom.odeber(KLIC_B)
+            );
+        } catch (StromException ex) {
+            fail();
+        }
+    }
+
+    /**
+     * Ověřuje, že metoda správně odebere prvek, který má jednoho potomka vpravo
+     */
+    @Test
+    public void test_03_05_odeber() {
+        try {
+            strom.vloz(KLIC_A, HODNOTA_A);
+            strom.vloz(KLIC_C, HODNOTA_C);
+
+            String result = strom.odeber(KLIC_C);
+            String expected = HODNOTA_C;
+            assertEquals(expected, result);
+            assertFalse(strom.jePrazdny());
+
+            assertThrows(
+                    StromException.class,
+                    () -> strom.odeber(KLIC_C)
+            );
+        } catch (StromException ex) {
+            fail();
+        }
+    }
+
+    /**
+     * Kontroluje, zda metoda správně odebere prvek, který má oba potomky
+     */
+    @Test
+    public void test_03_06_odeber() {
+        try {
+            strom.vloz(KLIC_A, HODNOTA_A);
+            strom.vloz(KLIC_B, HODNOTA_B);
+            strom.vloz(KLIC_C, HODNOTA_C);
+            strom.vloz(KLIC_D, HODNOTA_D);
+
+            String result = strom.odeber(KLIC_A);
+            String expected = HODNOTA_A;
+            assertEquals(expected, result);
+            assertFalse(strom.jePrazdny());
+
+            assertThrows(
+                    StromException.class,
+                    () -> strom.odeber(KLIC_A)
+            );
+        } catch (StromException ex) {
+            fail();
+        }
     }
 }
