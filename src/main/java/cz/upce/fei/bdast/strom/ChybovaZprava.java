@@ -8,7 +8,8 @@ public enum ChybovaZprava {
     NULL_KLIC("Hledaný klíč je null."),
     PRVEK_NENALEZEN("Prvek nebyl nalezen."),
     KONEC_ITERACE("Konec iterace."),
-    PRAZDNY_ZASOBNIK("Chyba při provádění iterace: zásobník je prázdný a nelze odebrat prvek");
+    PRAZDNY_ZASOBNIK("Chyba při provádění iterace: zásobník je prázdný a nelze odebrat prvek"),
+    PRAZDNY_KOREN("Kořen nebyl nalezen.");
 
     private final String zprava;
 

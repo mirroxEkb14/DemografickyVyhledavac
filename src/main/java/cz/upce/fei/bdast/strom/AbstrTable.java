@@ -68,30 +68,21 @@ public final class AbstrTable<K extends Comparable<K>, V> implements IAbstrTable
     public boolean jePrazdny() { return koren == null; }
 
     /**
-     * Popis logiky:
+     * Stručný popis logiky:
      * <ol>
-     * <li> Zda je vstupní klíč prázdný:
-     *      <ol>
-     *      <li> Vyvolá výjimku {@link StromException}, protože metoda byla zneužita s neplatným klíčem
-     *      </ol>
-     * <li> Vytvoří instance iterátoru, který bude procházet stromem do hloubky
-     * <li> Spustí smyčku {@code while}, která prochází strom. Iterátor postupně navštěvuje uzly stromu
-     * do hloubky a ukládá je do zásobníku:
-     *      <ol>
-     *      <li> Získává aktuální uzel {@code aktUzel}
-     *      <li> Porovnává s hledaným klíčem klic. Pokud se klíče rovnají:
-     *          <ol>
-     *          <li> Vrátí hodnotu tohoto uzlu {@code aktUzel.hodnota}
-     *          </ol>
-     *      </ol>
-     * <li> Pokud se klíče nerovnají žádnému uzlu ve stromu, dojde k vyhození výjimky {@link StromException}
+     * <li> <b>while (iterator.hasNext())</b>: Vytvoří iterátor umožňující procházet uzly stromu ve formátu
+     * {@code in-order} (tj. od nejlevějšího ke kořeni, a poté postupně doprava). Iteruje přes všechny uzly
+     * stromu
+     * <li> <b>{@link AbstrTable#jeNula(Comparable, Comparable)}</b>: Pokud se klíče shodují, vrátí hodnotu
+     * tohoto uzlu {@code aktUzel.hodnota}
+     * <li> <b>throw new StromException()</b>: Pokud se klíče nerovnají žádnému uzlu ve stromu, dojde k vyhození výjimky {@link StromException}
      * s chybovou zprávou říkájící, že prvek nebyl nalezen
      * </ol>
      */
     @Override
     public V najdi(K klic) throws StromException {
-        if (klic == null)
-            throw new StromException(ChybovaZprava.NULL_KLIC.getZprava());
+        pozadatNePrazdnyKlic(klic);
+        pozadatNePrazdnyKoren();
 
         final HloubkaIterator iterator = new HloubkaIterator();
         while (iterator.hasNext()) {
@@ -116,9 +107,7 @@ public final class AbstrTable<K extends Comparable<K>, V> implements IAbstrTable
      */
     @Override
     public void vloz(K klic, V hodnota) throws StromException {
-        if (klic == null)
-            throw new StromException(ChybovaZprava.NULL_KLIC.getZprava());
-
+        pozadatNePrazdnyKlic(klic);
         if (koren == null) {
             koren = new Uzel(klic, hodnota, null);
             return;
@@ -149,9 +138,123 @@ public final class AbstrTable<K extends Comparable<K>, V> implements IAbstrTable
     }
 
 
+    /**
+     * Stručný popis logiký:
+     * <ol>
+     * <li> <b>najdiUzel(klic)</b>
+     * </ol>
+     */
     @Override
     public V odeber(K klic) throws StromException {
+        pozadatNePrazdnyKlic(klic);
+        pozadatNePrazdnyKoren();
+
+        Uzel uzel = najdiUzel(klic);
+        if (uzel == null)
+            throw new StromException(ChybovaZprava.PRVEK_NENALEZEN.getZprava());
+
+        final V odebranaHodnota = uzel.hodnota;
+        if (jeListem(uzel)) {
+            if (jeKorenem(uzel))
+                koren = null;
+            else if (jeLevymPotomkem(uzel))
+                uzel.rodic.vlevo = null;
+            else if (jePravymPotomkem(uzel))
+                uzel.rodic.vpravo = null;
+
+        } else if (jsouObaPotomky(uzel)) {
+            final Uzel naslednik = najdiNaslednika(uzel);
+            uzel.klic = naslednik.klic;
+            uzel.hodnota = naslednik.hodnota;
+            odeberUzel(naslednik);
+
+        } else if (jeJedenPotomek(uzel)) {
+            final Uzel potomek = (uzel.vlevo != null) ? uzel.vlevo : uzel.vpravo;
+            if (jeKorenem(uzel)) {
+                koren = potomek;
+                potomek.rodic = null;
+            } else if (jeLevymPotomkem(uzel)) {
+                uzel.rodic.vlevo = potomek;
+                potomek.rodic = uzel.rodic;
+            } else if (jePravymPotomkem(uzel)) {
+                uzel.rodic.vpravo = potomek;
+                potomek.rodic = uzel.rodic;
+            }
+        }
+        aktualizujMohutnostPoOdebrani(uzel);
+        return odebranaHodnota;
+    }
+
+    private Uzel najdiUzel(K klic) {
+        final HloubkaIterator iterator = new HloubkaIterator();
+        Uzel uzel;
+        while (iterator.hasNext()) {
+            uzel = iterator.next();
+            if (jeNula(uzel.klic, klic))
+                return uzel;
+        }
         return null;
+    }
+
+    private Uzel najdiNaslednika(Uzel uzel) {
+        if (uzel.vpravo != null) {
+            // Pokud uzel má pravého potomka, najdeme nejlevějšího uzlu v pravém podstromu
+            uzel = uzel.vpravo;
+            while (uzel.vlevo != null) {
+                uzel = uzel.vlevo;
+            }
+            return uzel;
+        } else {
+            // Pokud uzel nemá pravého potomka, hledáme prvního předka, jehož levý potomek je tento uzel
+            Uzel rodic = uzel.rodic;
+            while (rodic != null && uzel == rodic.vpravo) {
+                uzel = rodic;
+                rodic = uzel.rodic;
+            }
+            return rodic;
+        }
+    }
+
+    private void odeberUzel(Uzel uzel) {
+        if (uzel.rodic == null) {
+            // Pokud je uzel kořenem stromu
+            koren = null;
+        } else if (jeLevymPotomkem(uzel)) {
+            uzel.rodic.vlevo = null;
+        } else {
+            uzel.rodic.vpravo = null;
+        }
+    }
+
+    private void aktualizujMohutnostPoOdebrani(Uzel uzel) {
+        while (uzel != null) {
+            snizMohutnost(uzel); // Snížíme mohutnost všech předků uzlu o 1
+            uzel = uzel.rodic; // Přesuneme se k rodiči
+        }
+    }
+
+    private boolean jeListem(Uzel uzel) {
+        return uzel.vlevo == null && uzel.vpravo == null;
+    }
+
+    private boolean jsouObaPotomky(Uzel uzel) {
+        return uzel.vlevo != null && uzel.vpravo != null;
+    }
+
+    private boolean jeJedenPotomek(Uzel uzel) {
+        return uzel.vlevo != null || uzel.vpravo != null;
+    }
+
+    private boolean jeKorenem(Uzel uzel) {
+        return uzel.rodic == null;
+    }
+
+    private boolean jeLevymPotomkem(Uzel uzel) {
+        return uzel == uzel.rodic.vlevo;
+    }
+
+    private boolean jePravymPotomkem(Uzel uzel) {
+        return uzel == uzel.rodic.vpravo;
     }
 
     /**
@@ -330,4 +433,26 @@ public final class AbstrTable<K extends Comparable<K>, V> implements IAbstrTable
      * @return {@code true}, pokud výsledek je záporný, jinak {@code false}
      */
     private boolean jeZaporne(K obj1, K obj2) { return obj1.compareTo(obj2) < NULTA_HODNOTA; }
+
+    /**
+     * Ověřuje, zda kořen stromu není prázdný {@code null}
+     *
+     * @throws StromException Pokud je kořen prázdný
+     */
+    private void pozadatNePrazdnyKoren() throws StromException {
+        if (koren == null)
+            throw new StromException(ChybovaZprava.PRAZDNY_KOREN.getZprava());
+    }
+
+    /**
+     * Ověřuje, zda zadaný klíč není prázdný {@code null}
+     *
+     * @param klic Vstupní klíč ověřující se na prázdnost
+     *
+     * @throws StromException Pokud je klíč prázdný
+     */
+    private void pozadatNePrazdnyKlic(K klic) throws StromException {
+        if (klic == null)
+            throw new StromException(ChybovaZprava.NULL_KLIC.getZprava());
+    }
 }
