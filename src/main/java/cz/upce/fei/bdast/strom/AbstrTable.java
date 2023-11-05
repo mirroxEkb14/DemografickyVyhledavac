@@ -155,31 +155,14 @@ public final class AbstrTable<K extends Comparable<K>, V> implements IAbstrTable
 
         final V odebranaHodnota = uzel.hodnota;
         if (jeListem(uzel)) {
-            if (jeKorenem(uzel))
-                koren = null;
-            else if (jeLevymPotomkem(uzel))
-                uzel.rodic.vlevo = null;
-            else if (jePravymPotomkem(uzel))
-                uzel.rodic.vpravo = null;
-
+            odeberList(uzel);
         } else if (jsouObaPotomky(uzel)) {
-            final Uzel naslednik = najdiNaslednika(uzel);
+            Uzel naslednik = najdiNaslednika(uzel);
             uzel.klic = naslednik.klic;
             uzel.hodnota = naslednik.hodnota;
-            odeberUzel(naslednik);
-
+            odeberNaslednika(naslednik);
         } else if (jeJedenPotomek(uzel)) {
-            final Uzel potomek = (uzel.vlevo != null) ? uzel.vlevo : uzel.vpravo;
-            if (jeKorenem(uzel)) {
-                koren = potomek;
-                potomek.rodic = null;
-            } else if (jeLevymPotomkem(uzel)) {
-                uzel.rodic.vlevo = potomek;
-                potomek.rodic = uzel.rodic;
-            } else if (jePravymPotomkem(uzel)) {
-                uzel.rodic.vpravo = potomek;
-                potomek.rodic = uzel.rodic;
-            }
+            odeberJednohoPotomka(uzel);
         }
         aktualizujMohutnostPoOdebrani(uzel);
         return odebranaHodnota;
@@ -215,14 +198,39 @@ public final class AbstrTable<K extends Comparable<K>, V> implements IAbstrTable
         }
     }
 
-    private void odeberUzel(Uzel uzel) {
+    private void odeberList(Uzel uzel) {
         if (uzel.rodic == null) {
-            // Pokud je uzel kořenem stromu
             koren = null;
         } else if (jeLevymPotomkem(uzel)) {
             uzel.rodic.vlevo = null;
         } else {
             uzel.rodic.vpravo = null;
+        }
+    }
+
+    private void odeberNaslednika(Uzel naslednik) {
+        if (naslednik == naslednik.rodic.vlevo) {
+            naslednik.rodic.vlevo = naslednik.vpravo;
+        } else {
+            naslednik.rodic.vpravo = naslednik.vpravo;
+        }
+        if (naslednik.vpravo != null) {
+            naslednik.vpravo.rodic = naslednik.rodic;
+        }
+    }
+
+    private void odeberJednohoPotomka(Uzel uzel) {
+        Uzel potomek = (uzel.vlevo != null) ? uzel.vlevo : uzel.vpravo;
+        if (uzel.rodic == null) {
+            // Pokud je uzel kořenem stromu
+            koren = potomek;
+        } else if (uzel == uzel.rodic.vlevo) {
+            uzel.rodic.vlevo = potomek;
+        } else {
+            uzel.rodic.vpravo = potomek;
+        }
+        if (potomek != null) {
+            potomek.rodic = uzel.rodic;
         }
     }
 
