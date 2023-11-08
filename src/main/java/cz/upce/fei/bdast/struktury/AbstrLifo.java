@@ -13,7 +13,7 @@ import java.util.Stack;
  *
  * @param <T> Typ prvků, které budou uloženy ve zásobníku
  */
-public class AbstrLifo<T> {
+public final class AbstrLifo<T> {
 
     private final IAbstrDoubleList<T> zasobnik;
 

@@ -15,7 +15,7 @@ import java.util.NoSuchElementException;
  * @author amirov 10/4/2023
  * @param <T> generický parametr, reprezentující budoucí datový typ
  */
-public class AbstrDoubleList<T> implements IAbstrDoubleList<T> {
+public final class AbstrDoubleList<T> implements IAbstrDoubleList<T> {
 
     /**
      * Ukazatel na první prvek je stupním bodem do spojového seznamu (head).

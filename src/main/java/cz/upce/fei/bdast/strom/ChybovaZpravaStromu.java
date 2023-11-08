@@ -4,7 +4,7 @@ package cz.upce.fei.bdast.strom;
  * Třída reprezentuje výčtový typ pro různé chybové zprávy v datové struktuře Strom. Každá konstanta
  * představuje jednu konkrétní chybovou zprávu
  */
-public enum ChybovaZprava {
+public enum ChybovaZpravaStromu {
     NULL_KLIC("Hledaný klíč je null."),
     PRVEK_NENALEZEN("Prvek nebyl nalezen."),
     KONEC_ITERACE("Konec iterace."),
@@ -18,7 +18,7 @@ public enum ChybovaZprava {
      *
      * @param zprava Chybová zpráva asociovaná s danou konstantou
      */
-    ChybovaZprava(String zprava) { this.zprava = zprava; }
+    ChybovaZpravaStromu(String zprava) { this.zprava = zprava; }
 
     /**
      * Slouží k získání textového popisu chybové zprávy asociované s konstantou

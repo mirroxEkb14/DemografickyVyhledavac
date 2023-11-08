@@ -69,7 +69,7 @@ public final class AbstrTable<K extends Comparable<K>, V> implements IAbstrTable
     public boolean jePrazdny() { return koren == null; }
 
     /**
-     * Stručný popis logiky:
+     * Popis logiky:
      * <ol>
      * <li> <b>while (iterator.hasNext())</b>: Vytvoří iterátor umožňující procházet uzly stromu ve formátu
      * {@code in-order} (tj. od nejlevějšího ke kořeni, a poté postupně doprava). Iteruje přes všechny uzly
@@ -85,17 +85,17 @@ public final class AbstrTable<K extends Comparable<K>, V> implements IAbstrTable
         pozadatNePrazdnyKlic(klic);
         pozadatNePrazdnyKoren();
 
-        final HloubkaIterator iterator = new HloubkaIterator();
+        final VnitrniHloubkaIterator iterator = new VnitrniHloubkaIterator();
         while (iterator.hasNext()) {
             final Uzel aktUzel = iterator.next();
             if (jeNula(aktUzel.klic, klic))
                 return aktUzel.hodnota;
         }
-        throw new StromException(ChybovaZprava.PRVEK_NENALEZEN.getZprava());
+        throw new StromException(ChybovaZpravaStromu.PRVEK_NENALEZEN.getZprava());
     }
 
     /**
-     * Stručný popis logiky:
+     * Popis logiky:
      * <ol>
      * <li> <b>koren == null</b>: Pokud je strom prázdný, vytvoří kořen s novým uzlem a skončí
      * <li> {@link AbstrTable#jeNula(Comparable, Comparable)}: Pokud nový klíč je roven aktuálnímu uzlu,
@@ -113,7 +113,7 @@ public final class AbstrTable<K extends Comparable<K>, V> implements IAbstrTable
             koren = new Uzel(klic, hodnota, null);
             return;
         }
-        final HloubkaIterator iterator = new HloubkaIterator();
+        final VnitrniHloubkaIterator iterator = new VnitrniHloubkaIterator();
         Uzel aktUzel;
         while (iterator.hasNext()) {
             aktUzel = iterator.next();
@@ -184,7 +184,7 @@ public final class AbstrTable<K extends Comparable<K>, V> implements IAbstrTable
 
         Uzel uzel = najdiUzel(klic);
         if (uzel == null)
-            throw new StromException(ChybovaZprava.PRVEK_NENALEZEN.getZprava());
+            throw new StromException(ChybovaZpravaStromu.PRVEK_NENALEZEN.getZprava());
 
         final V odebranaHodnota = uzel.hodnota;
         if (jsouObaPotomky(uzel)) {
@@ -219,7 +219,7 @@ public final class AbstrTable<K extends Comparable<K>, V> implements IAbstrTable
      * </ol>
      */
     private Uzel najdiUzel(K klic) {
-        final HloubkaIterator iterator = new HloubkaIterator();
+        final VnitrniHloubkaIterator iterator = new VnitrniHloubkaIterator();
         Uzel uzel;
         while (iterator.hasNext()) {
             uzel = iterator.next();
@@ -373,7 +373,7 @@ public final class AbstrTable<K extends Comparable<K>, V> implements IAbstrTable
      * @param typ Způsob průchodu stromem - buď šířka nebo hloubka
      */
     @Override
-    public Iterator<Uzel> vytvorIterator(ETypProhl typ) {
+    public Iterator<V> vytvorIterator(ETypProhl typ) {
         return switch (typ) {
             case SIRKA -> new SirkaIterator();
             case HLOUBKA -> new HloubkaIterator();
@@ -383,14 +383,14 @@ public final class AbstrTable<K extends Comparable<K>, V> implements IAbstrTable
     /**
      * Iterátor pro průchod stromem do šířky
      */
-    private class SirkaIterator implements Iterator<Uzel> {
+    private class VnitrniSirkaIterator implements Iterator<Uzel> {
 
         private final AbstrFifo<Uzel> fronta;
 
         /**
          * Konstruktor vytvoří instanci iterátoru a inicializuje frontu, pokud strom není prázdný
          */
-        public SirkaIterator() {
+        public VnitrniSirkaIterator() {
             fronta = new AbstrFifo<>();
             if (koren != null)
                 fronta.vloz(koren);
@@ -434,6 +434,39 @@ public final class AbstrTable<K extends Comparable<K>, V> implements IAbstrTable
     }
 
     /**
+     * Iterátor pro vracení hodnot stromu zvenčí
+     */
+    private class SirkaIterator implements Iterator<V> {
+
+        private final AbstrFifo<Uzel> fronta;
+
+        public SirkaIterator() {
+            fronta = new AbstrFifo<>();
+            if (koren != null)
+                fronta.vloz(koren);
+        }
+
+        @Override
+        public boolean hasNext() { return !fronta.jePrazdna(); }
+
+        @Override
+        public V next() {
+            if (!hasNext())
+                throw new NoSuchElementException();
+            try {
+                Uzel aktualniUzel = fronta.odeber();
+                if (aktualniUzel.vlevo != null)
+                    fronta.vloz(aktualniUzel.vlevo);
+                if (aktualniUzel.vpravo != null)
+                    fronta.vloz(aktualniUzel.vpravo);
+                return aktualniUzel.hodnota;
+            } catch (StrukturaException e) {
+                throw new NoSuchElementException();
+            }
+        }
+    }
+
+    /**
      * Iterátor pro průchod stromem do hloubky (in-order)
      *
      * <p> <b>Depth-First Search (DFS)</b> je strategie pro procházení stromů a grafů, která se zaměřuje na
@@ -441,14 +474,14 @@ public final class AbstrTable<K extends Comparable<K>, V> implements IAbstrTable
      *
      * <p> <b>In-order DFS</b> nejprve navštíví levý podstrom, poté kořenový uzel (prvek) a nakonec pravý podstrom
      */
-    private class HloubkaIterator implements Iterator<Uzel> {
+    private class VnitrniHloubkaIterator implements Iterator<Uzel> {
 
         private final AbstrLifo<Uzel> zasobnik;
 
         /**
          * Konstruktor vytvoří instanci iterátoru a inicializuje zásobník, pokud strom není prázdný
          */
-        public HloubkaIterator() {
+        public VnitrniHloubkaIterator() {
             zasobnik = new AbstrLifo<>();
             obnovZasobnik(koren);
         }
@@ -493,14 +526,51 @@ public final class AbstrTable<K extends Comparable<K>, V> implements IAbstrTable
         @Override
         public Uzel next() {
             if (!hasNext())
-                throw new NoSuchElementException(ChybovaZprava.KONEC_ITERACE.getZprava());
+                throw new NoSuchElementException(ChybovaZpravaStromu.KONEC_ITERACE.getZprava());
             try {
                 final Uzel aktUzel = zasobnik.odeber();
                 if (aktUzel.vpravo != null)
                     obnovZasobnik(aktUzel.vpravo);
                 return aktUzel;
             } catch (StrukturaException e) {
-                throw new NoSuchElementException(ChybovaZprava.PRAZDNY_ZASOBNIK.getZprava());
+                throw new NoSuchElementException(ChybovaZpravaStromu.PRAZDNY_ZASOBNIK.getZprava());
+            }
+        }
+    }
+
+    /**
+     * Iterátor pro vracení hodnot stromu zvenčí
+     */
+    private class HloubkaIterator implements Iterator<V> {
+
+        private final AbstrLifo<Uzel> zasobnik;
+
+        public HloubkaIterator() {
+            zasobnik = new AbstrLifo<>();
+            obnovZasobnik(koren);
+        }
+
+        private void obnovZasobnik(Uzel uzel) {
+            while (uzel != null) {
+                zasobnik.vloz(uzel);
+                uzel = uzel.vlevo;
+            }
+        }
+
+        @Override
+        public boolean hasNext() { return !zasobnik.jePrazdny(); }
+
+        @Override
+        public V next() {
+            if (!hasNext())
+                throw new NoSuchElementException(ChybovaZpravaStromu.KONEC_ITERACE.getZprava());
+            try {
+                final Uzel aktUzel = zasobnik.odeber();
+                if (aktUzel.vpravo != null)
+                    obnovZasobnik(aktUzel.vpravo);
+                return aktUzel.hodnota;
+            } catch (StrukturaException e) {
+                throw new NoSuchElementException(ChybovaZpravaStromu.PRAZDNY_ZASOBNIK.getZprava());
             }
         }
     }
@@ -547,7 +617,7 @@ public final class AbstrTable<K extends Comparable<K>, V> implements IAbstrTable
      */
     private void pozadatNePrazdnyKoren() throws StromException {
         if (koren == null)
-            throw new StromException(ChybovaZprava.PRAZDNY_KOREN.getZprava());
+            throw new StromException(ChybovaZpravaStromu.PRAZDNY_KOREN.getZprava());
     }
 
     /**
@@ -559,6 +629,6 @@ public final class AbstrTable<K extends Comparable<K>, V> implements IAbstrTable
      */
     private void pozadatNePrazdnyKlic(K klic) throws StromException {
         if (klic == null)
-            throw new StromException(ChybovaZprava.NULL_KLIC.getZprava());
+            throw new StromException(ChybovaZpravaStromu.NULL_KLIC.getZprava());
     }
 }

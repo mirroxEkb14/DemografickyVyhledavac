@@ -6,7 +6,11 @@ package cz.upce.fei.bdast.data;
  */
 public final class Obec {
 
+    /**
+     * Sada privátních tribubů
+     */
     private final int cisloKraje;
+    private final String nazev;
     private final String psc;
     private final int pocetMuzu;
     private final int pocetZen;
@@ -16,11 +20,13 @@ public final class Obec {
      * Konstruktor inicializuje statistická data obce
      */
     public Obec(int cisloKraje,
+                String nazev,
                 String psc,
                 int pocetMuzu,
                 int pocetZen,
                 int celkem) {
         this.cisloKraje = cisloKraje;
+        this.nazev = nazev;
         this.psc = psc;
         this.pocetMuzu = pocetMuzu;
         this.pocetZen = pocetZen;
@@ -34,6 +40,8 @@ public final class Obec {
  */
 // <editor-fold defaultstate="collapsed" desc="Gettery">
     public int getCisloKraje() { return cisloKraje; }
+
+    public String getNazev() { return nazev; }
 
     public String getPsc() { return psc; }
 

@@ -1,13 +1,15 @@
 package cz.upce.fei.bdast.agenda;
 
+import cz.upce.fei.bdast.data.Obec;
 import cz.upce.fei.bdast.strom.IAbstrTable;
+import cz.upce.fei.bdast.generator.ObecGenerator;
 
 import java.util.Iterator;
 
 /**
- *
+ * Toto rozhraní slouží k abstrakci funkcionalit pro práci s agendou kraje
  */
-public interface IAgendaKraj<K extends Comparable<K>, V> extends Iterable<K> {
+public interface IAgendaKraj {
 
     /**
      * Provede import dat z textového souboru
@@ -17,35 +19,45 @@ public interface IAgendaKraj<K extends Comparable<K>, V> extends Iterable<K> {
     /**
      * Vyhledání obce
      *
-     * @return
+     * @param nazevObce Název hledané obce
+     *
+     * @return {@link Obec} s daným názvem
+     *
+     * @throws AgendaKrajException Pokud obec byla nalezena
      */
-    K najdi();
+    Obec najdi(String nazevObce) throws AgendaKrajException;
 
     /**
      * Vložení obce
      *
-     * @return
+     * @param obec Obec pro vkládání
+     *
+     * @throws AgendaKrajException Pokud je klíč prázdný
      */
-    K vloz();
+    void vloz(Obec obec) throws AgendaKrajException;
 
     /**
      * Odebrání obce
      *
-     * @return
+     * @param nazevObce Název hledané obce
+     *
+     * @return {@link Obec} s daným názvem
+     *
+     * @throws AgendaKrajException Pokud je klíč (nazev obce) anebo celý strom (kořen) prázdný
      */
-    K odeber();
+    Obec odeber(String nazevObce) throws AgendaKrajException;
 
     /**
      * Vrací iterátor tabulky
      *
-     * @return
+     * @return {@link Iterator} buď s hledáním do šířky anebo do hloubky
      */
-    Iterator<K> vytvorIterator();
+    Iterator<Obec> vytvorIterator();
 
     /**
      * Umožnuje generovat jednotlivé obce
      *
-     * @return
+     * @param pocet Počet obcí pro generování
      */
-    IAbstrTable<K, V> generuj();
+    void generuj(int pocet);
 }

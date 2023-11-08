@@ -72,13 +72,10 @@ public interface IAbstrTable<K extends Comparable<K>, V> {
     /**
      * Vytvoří iterátor, který umožňuje  procházení stromu do šířky/hloubky (in-order)
      *
-     * <p> Metoda je obecná a schopná vracet iterátory různých generických typů, je mozmé použít
-     * &lt;?&gt; jako zástupný typ (wildcard type)
-     *
      * @param typ Typ prohlížení {@link ETypProhl} - může být například in-order, pre-order,
      *            post-order, atd.
      *
      * @return {@link Iterator} pro procházení stromu
      */
-    Iterator<?> vytvorIterator(ETypProhl typ);
+    Iterator<V> vytvorIterator(ETypProhl typ);
 }
