@@ -97,7 +97,7 @@ public final class AbstrTable<K extends Comparable<K>, V> implements IAbstrTable
     /**
      * Pomocná metoda pro {@link AbstrTable#vloz(Comparable, Object)}}
      *
-     * <p>Popis logiký jednotlivých bloků kódu:
+     * <p> Popis logiký jednotlivých bloků kódu:
      * <ol>
      * <li> Pokud je {@code uzel} prázdný (neexistuje), vrátí {@code null}
      *     <ul>
@@ -162,13 +162,13 @@ public final class AbstrTable<K extends Comparable<K>, V> implements IAbstrTable
             koren = new Uzel(klic, hodnota, null);
         else
             vlozRekurzivne(klic, hodnota, koren);
-        koren.mohutnost += ZVETSOVAC_MOHUTNOSTI;
+        zvysMohutnost(koren);
     }
 
     /**
      * Pomocná metoda pro {@link AbstrTable#vloz(Comparable, Object)}}
      *
-     * <p>Popis logiký:
+     * <p> Popis logiký:
      * <ol>
      * <li> Provádí rekurzivní prohledávání stromu, dokud nenalezne uzel se zadaným klíčem {@code klic}
      * </ol>
@@ -184,7 +184,7 @@ public final class AbstrTable<K extends Comparable<K>, V> implements IAbstrTable
     /**
      * Pomocná metoda pro {@link AbstrTable#vloz(Comparable, Object)}}
      *
-     * <p>Popis logiký jednotlivých bloků kódu:
+     * <p> Popis logiký jednotlivých bloků kódu:
      * <ol>
      * <li> Porovná klíče a rozhodne, do kterého podstromu nový uzel patří
      *     <ul>
@@ -291,7 +291,7 @@ public final class AbstrTable<K extends Comparable<K>, V> implements IAbstrTable
     /**
      * Pomocná metoda pro {@link AbstrTable#odeber(Comparable)}
      *
-     * <p> Popis logiky:
+     * <p> Popis logiký jednotlivých bloků kódu:
      * <ol>
      * <li> <b>maPravehoPotomka(uzel)</b>: Pokud uzel má pravého potomka, najde nejlevější uzel v rámci tohoto
      * pravého podstromu (tj. najde první uzel v {@code in-order} následování)
@@ -322,7 +322,7 @@ public final class AbstrTable<K extends Comparable<K>, V> implements IAbstrTable
      * <p> Slouží k odstranění uzlu, který má právě jednoho potomka, a následné připojení tohoto potomka na místo
      * odebraného uzlu
      *
-     * <p> Popis logiky:
+     * <p> Popis logiký jednotlivých bloků kódu:
      * <ol>
      * <li> <b>jeKorenem()</b>: Aktualizuje kořen, čímž se potomek stane novým kořenem stromu
      * <li> <b>jeLevymPotomkem()</b>: Připojí potomka na místo odebraného uzlu (tj. na levý potomek svého rodiče),
@@ -421,9 +421,9 @@ public final class AbstrTable<K extends Comparable<K>, V> implements IAbstrTable
 // </editor-fold>
 
 // <editor-fold defaultstate="collapsed" desc="Pomocné metody typu Void pro změnu mohutnosti uzlů">
-    private void zvysMohutnost(Uzel uzel) { uzel.mohutnost++; }
+    private void zvysMohutnost(@NotNull Uzel uzel) { uzel.mohutnost++; }
 
-    private void snizMohutnost(Uzel uzel) { uzel.mohutnost--; }
+    private void snizMohutnost(@NotNull Uzel uzel) { uzel.mohutnost--; }
 // </editor-fold>
 
     /**
@@ -508,29 +508,14 @@ public final class AbstrTable<K extends Comparable<K>, V> implements IAbstrTable
     private class HloubkaIterator implements Iterator<V> {
 
         private final IAbstrLifo<Uzel> zasobnik;
+        private Uzel aktUzel;
 
         /**
          * Konstruktor vytvoří instanci iterátoru a inicializuje zásobník, pokud strom není prázdný
          */
         public HloubkaIterator() {
             zasobnik = new AbstrLifo<>();
-            obnovZasobnik(koren);
-        }
-
-        /**
-         * Inicializuje zásobník pro prohlížení stromu zleva tím, že přidává všechny uzly levého podstromu
-         * do zásobníku.
-         *
-         * <p> Postupně vkládá uzly do zásobníku, začínaje zadaným kořenovým uzlem a postupujíc vlevo k
-         * potomkům, dokud existují leví potomci
-         *
-         * @param uzel Prvek, od kterého začíná procházení stromu zleva
-         */
-        private void obnovZasobnik(Uzel uzel) {
-            while (uzel != null) {
-                zasobnik.vloz(uzel);
-                uzel = uzel.vlevo;
-            }
+            aktUzel = koren;
         }
 
         /**
@@ -539,7 +524,7 @@ public final class AbstrTable<K extends Comparable<K>, V> implements IAbstrTable
          * @return {@code true}, pokud existuje další prvek, jinak {@code false}
          */
         @Override
-        public boolean hasNext() { return !zasobnik.jePrazdny(); }
+        public boolean hasNext() { return !zasobnik.jePrazdny() || aktUzel != null; }
 
         /**
          * Vrací další prvek v pořadí pro průchod stromem do hloubky (in-order)
@@ -550,19 +535,36 @@ public final class AbstrTable<K extends Comparable<K>, V> implements IAbstrTable
          * od nejmenšího po největší klíč. Tímto způsobem jsou uzly (prvky) navštěvovány v pořadí podle
          * jejich klíčů od nejmenšího po největší
          *
+         * <p> Popis logiký jednotlivých bloků kódu:
+         * <ol>
+         * <li> <b>while (aktUzel != null)</b>: Prochází stromem do hloubky, dokud aktuální uzel není {@code null},
+         * tedy dokud má levého potomka, postupně přidává uzly na zásobník a posunuje se na levého potomka stromu,
+         * čímž vytváří cestu směrem k nejlevějšímu (nejmenšímu) uzlu stromu
+         * <li> Odebere uzel z vrcholu zásobníku (po přidání všech levých uzlů na zásobník), jímž prochází a vrátí
+         * jeho hodnotu. Poté přejde na pravého potomka tohoto uzlu a pokračuje v iteraci, čímž vlastně postupně
+         * prochází strom v {@code in-order} pořadí (zleva doprava)
+         *     <ul>
+         *     <li> <b>aktUzel = zasobnik.odeber()</b>
+         *     <li> <b>final V hodnota = aktUzel.hodnota</b>
+         *     <li> <b>aktUzel = aktUzel.vpravo</b>
+         *     </ul>
+         * </ol>
+         *
          * @return Další prvek pro zpracování
          *
          * @throws NoSuchElementException Pokud není další prvek k dispozici
          */
         @Override
         public V next() {
-            if (!hasNext())
-                throw new NoSuchElementException(ChybovaZpravaStromu.KONEC_ITERACE.getZprava());
             try {
-                final Uzel aktUzel = zasobnik.odeber();
-                if (aktUzel.vpravo != null)
-                    obnovZasobnik(aktUzel.vpravo);
-                return aktUzel.hodnota;
+                while (aktUzel != null) {
+                    zasobnik.vloz(aktUzel);
+                    aktUzel = aktUzel.vlevo;
+                }
+                aktUzel = zasobnik.odeber();
+                final V hodnota = aktUzel.hodnota;
+                aktUzel = aktUzel.vpravo;
+                return hodnota;
             } catch (StrukturaException e) {
                 throw new NoSuchElementException(ChybovaZpravaStromu.PRAZDNY_ZASOBNIK.getZprava());
             }
@@ -579,7 +581,7 @@ public final class AbstrTable<K extends Comparable<K>, V> implements IAbstrTable
      *
      * @return {@code true}, pokud výsledek je roven nule, jinak {@code false}
      */
-    private boolean jeNula(K obj1, K obj2) { return obj1.compareTo(obj2) == NULTA_HODNOTA; }
+    private boolean jeNula(@NotNull K obj1, K obj2) { return obj1.compareTo(obj2) == NULTA_HODNOTA; }
 
     /**
      * Porovná výsledek metody compareTo s kladným číslem
@@ -591,7 +593,7 @@ public final class AbstrTable<K extends Comparable<K>, V> implements IAbstrTable
      *
      * @return {@code true}, pokud výsledek je kladný, jinak {@code false}
      */
-    private boolean jeKladne(K obj1, K obj2) { return obj1.compareTo(obj2) > NULTA_HODNOTA; }
+    private boolean jeKladne(@NotNull K obj1, K obj2) { return obj1.compareTo(obj2) > NULTA_HODNOTA; }
 
     /**
      * Porovná výsledek metody compareTo s záporným číslem
@@ -602,7 +604,7 @@ public final class AbstrTable<K extends Comparable<K>, V> implements IAbstrTable
      * @param obj2 Druhý objekt pro porovnání
      * @return {@code true}, pokud výsledek je záporný, jinak {@code false}
      */
-    private boolean jeZaporne(K obj1, K obj2) { return obj1.compareTo(obj2) < NULTA_HODNOTA; }
+    private boolean jeZaporne(@NotNull K obj1, K obj2) { return obj1.compareTo(obj2) < NULTA_HODNOTA; }
 
     /**
      * Ověřuje, zda kořen stromu není prázdný {@code null}

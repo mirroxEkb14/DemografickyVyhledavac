@@ -8,12 +8,13 @@ import java.util.Iterator;
 import static org.junit.Assert.*;
 
 /**
- * Abychom mohli pokrýt všechny řádky metody najdi(), musíme napsat testy pro různé scénáře:
+ * Testovací případy pro:
  * <ol>
  * <li> <b>test_01_</b> Scénáře metody {@link AbstrTable#najdi(Comparable)}
  * <li> <b>test_02_</b> Scénáře metody {@link AbstrTable#vloz(Comparable, Object)}}
  * <li> <b>test_03_</b> Scénáře metody {@link AbstrTable#odeber(Comparable)}
  * <li> <b>test_04_</b> Scénáře metody {@code mohutnost}
+ * <li> <b>test_05_</b> Scenáře metody {@link AbstrTable#vytvorIterator(ETypProhl)}
  * </ol>
  *
  * @author amirov 10/30/2023
@@ -45,6 +46,10 @@ public class AbstrTableTest {
      * Instance datové struktury
      */
     private IAbstrTable<Integer, String> strom;
+    /**
+     * Index využívaný u testovacích případů <b>test_05_</b>
+     */
+    private int index;
 
     public AbstrTableTest() {}
 
@@ -92,10 +97,16 @@ public class AbstrTableTest {
     public static void tearDownClass() {}
 
     @Before
-    public void setUp() { strom = new AbstrTable<>(); }
+    public void setUp() {
+        strom = new AbstrTable<>();
+        index = 0;
+    }
 
     @After
-    public void tearDown() { strom = null; }
+    public void tearDown() {
+        strom = null;
+        index = 0;
+    }
 
     /**
      * Test pro vyhledání klíče, který se nachází v kořeni stromu
@@ -539,13 +550,19 @@ public class AbstrTableTest {
     }
 
     /**
-     *   C
-     *  / \
-     * A   D
-     *  \   \
-     *   B   F
-     *      / \
-     *     E   G
+     * Ověřuje, zda iterátor správně prochází strom do hloubky (in-order) a zda prochází prvky ve správném pořadí.
+     * Je tedy strom s několika prvky, které byly vloženy v určitém pořadí: {7: C}, {5: A}, {3: B}, {8: G}, {2: D},
+     * {6: F}, {4: E}. Očekává, že iterátor projde strom a vrátí prvky ve správném pořadí, tj. {2: D}, {3: B}, {4: E},
+     * {5: A}, {6: F}, {7: C}, {8: G}
+     *
+     * <p> Přehled stromu:
+     *           7(C)
+     *          /    \
+     *         5(A)   8(G)
+     *        /    \
+     *       3(B)  6(F)
+     *      /   \
+     *     2(D) 4(E)
      */
     @Test
     public void test_05_01_vytvorIterator() {
@@ -558,13 +575,123 @@ public class AbstrTableTest {
             strom.vloz(KLIC_F, HODNOTA_F);
             strom.vloz(KLIC_E, HODNOTA_E);
 
-            String[] ocekavanyVystup = {HODNOTA_A, HODNOTA_B, HODNOTA_C, HODNOTA_D, HODNOTA_E, HODNOTA_F, HODNOTA_G};
+            String[] expected = {HODNOTA_D, HODNOTA_B, HODNOTA_E, HODNOTA_A, HODNOTA_F, HODNOTA_C, HODNOTA_G};
+            Iterator<String> iterator = strom.vytvorIterator(ETypProhl.HLOUBKA);
+            while (iterator.hasNext()) {
+                String result = iterator.next();
+                assertEquals(expected[index], result);
+                index++;
+            }
+        } catch (StromException ex) {
+            fail();
+        }
+    }
+
+    /**
+     * Ověřuje, zda iterátor správně prochází strom do hloubky (in-order) a zda prochází prvky ve správném pořadí.
+     * Nejprve se do stromu přidají tři prvky s různými klíči a hodnotami ({7: C}, {5: A}, {4: E}). Test vytvoří
+     * iterátor a očekává, že bude vracet prvky ve správném pořadí ({4: E}, {5: A}, {7: C})
+     *
+     * <p> Přehled stromu:
+     *         7(C)
+     *        /
+     *       5(A)
+     *      /
+     *     4(E)
+     */
+    @Test
+    public void test_05_02_vytvorIterator() {
+        try {
+            strom.vloz(KLIC_C, HODNOTA_C);
+            strom.vloz(KLIC_A, HODNOTA_A);
+            strom.vloz(KLIC_E, HODNOTA_E);
+
+            String[] expected = {HODNOTA_E, HODNOTA_A, HODNOTA_C};
+            Iterator<String> iterator = strom.vytvorIterator(ETypProhl.HLOUBKA);
+            while (iterator.hasNext()) {
+                String result = iterator.next();
+                assertEquals(expected[index], result);
+                index++;
+            }
+        } catch (StromException ex) {
+            fail();
+        }
+    }
+
+    /**
+     * Ověřuje, zda iterátor správně zachází s prázdným stromem. Test vytvoří iterátor pro prázdný strom a očekává,
+     * že {@code hasNext()} vrátí {@code false}, protože neexistuje žádný prvek k procházení
+     */
+    @Test
+    public void test_05_03_vytvorIterator() {
+        Iterator<String> iterator = strom.vytvorIterator(ETypProhl.HLOUBKA);
+        boolean expected = iterator.hasNext();
+        assertFalse(expected);
+    }
+
+    /**
+     * Ověřuje, zda iterátor správně pracuje s stromem obsahujícím pouze jeden prvek. Přidá do stromu jeden prvek
+     * (klic A, hodnota A). Očekává, že iterátor vrátí tento jediný prvek a {@code hasNext()} bude {@code true}
+     * na začátku a {@code false} po vrácení prvku
+     *
+     * <p> Přehled stromu:
+     *         5(A)
+     *        /   \
+     *      null  null
+     */
+    @Test
+    public void test_05_04_vytvorIterator() {
+        try {
+            strom.vloz(KLIC_A, HODNOTA_A);
+
             Iterator<String> iterator = strom.vytvorIterator(ETypProhl.HLOUBKA);
 
-            int index = 0;
+            boolean expectedPredNext = iterator.hasNext();
+            assertTrue(expectedPredNext);
+
+            String expectedHodnota = HODNOTA_A;
+            String resultHodnota = iterator.next();
+            assertEquals(expectedHodnota, resultHodnota);
+
+            boolean expectedPoNext = iterator.hasNext();
+            assertFalse(expectedPoNext);
+        } catch (StromException ex) {
+            fail();
+        }
+    }
+
+    /**
+     * Ověří, zda iterátor vrací očekávané hodnoty v pořadí "a", "c", "b", "p", "t", "s", "x", "w"
+     *
+     * <p> Přehled stromu:
+     *         a
+     *        / \
+     *       /   \
+     *      b     x
+     *     / \   / \
+     *    c   p s   w
+     *         /
+     *        t
+     */
+    @Test
+    public void test_05_05_vytvorIterator() {
+        try {
+            IAbstrTable<String, Integer> novyStrom = new AbstrTable<>();
+
+            novyStrom.vloz("a", 1);
+            novyStrom.vloz("x", 2);
+            novyStrom.vloz("s", 3);
+            novyStrom.vloz("c", 4);
+            novyStrom.vloz("b", 5);
+            novyStrom.vloz("w", 6);
+            novyStrom.vloz("t", 7);
+            novyStrom.vloz("p", 8);
+
+            String[] expected = {"a", "c", "b", "p", "t", "s", "x", "w"};
+            Iterator<String> iterator = strom.vytvorIterator(ETypProhl.HLOUBKA);
             while (iterator.hasNext()) {
-                String hodnota = iterator.next();
-                assertEquals(ocekavanyVystup[index], hodnota);
+                String result = iterator.next();
+                assertEquals(expected[index], result);
                 index++;
             }
         } catch (StromException ex) {
