@@ -203,10 +203,8 @@ public class AbstrTableTest {
     public void test_02_02_vloz() {
         try {
             strom.vloz(KLIC_A, HODNOTA_A);
-            strom.vloz(KLIC_A, HODNOTA_B); // Aktualizace hodnoty pro existující klíč
-            String result = strom.najdi(KLIC_A);
-            String expected = HODNOTA_B;
-            assertEquals(expected, result);
+            assertThrows(StromException.class,
+                    () -> strom.vloz(KLIC_A, HODNOTA_B));
         } catch (StromException ex) {
             fail();
         }
@@ -535,6 +533,40 @@ public class AbstrTableTest {
             int result = mohutnostUzlu(strom, HODNOTA_C);
             int expected = 0;
             assertEquals(expected, result);
+        } catch (StromException ex) {
+            fail();
+        }
+    }
+
+    /**
+     *   C
+     *  / \
+     * A   D
+     *  \   \
+     *   B   F
+     *      / \
+     *     E   G
+     */
+    @Test
+    public void test_05_01_vytvorIterator() {
+        try {
+            strom.vloz(KLIC_C, HODNOTA_C);
+            strom.vloz(KLIC_A, HODNOTA_A);
+            strom.vloz(KLIC_B, HODNOTA_B);
+            strom.vloz(KLIC_G, HODNOTA_G);
+            strom.vloz(KLIC_D, HODNOTA_D);
+            strom.vloz(KLIC_F, HODNOTA_F);
+            strom.vloz(KLIC_E, HODNOTA_E);
+
+            String[] ocekavanyVystup = {HODNOTA_A, HODNOTA_B, HODNOTA_C, HODNOTA_D, HODNOTA_E, HODNOTA_F, HODNOTA_G};
+            Iterator<String> iterator = strom.vytvorIterator(ETypProhl.HLOUBKA);
+
+            int index = 0;
+            while (iterator.hasNext()) {
+                String hodnota = iterator.next();
+                assertEquals(ocekavanyVystup[index], hodnota);
+                index++;
+            }
         } catch (StromException ex) {
             fail();
         }

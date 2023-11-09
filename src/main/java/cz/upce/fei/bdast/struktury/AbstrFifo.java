@@ -2,17 +2,14 @@ package cz.upce.fei.bdast.struktury;
 
 import cz.upce.fei.bdast.seznam.AbstrDoubleList;
 import cz.upce.fei.bdast.seznam.IAbstrDoubleList;
-import java.util.Queue;
 
 /**
- * Třída představuje implementaci fronty (FIFO) postavené na rozhraní {@link IAbstrDoubleList}. Poskytuje
- * základní operace pro manipulaci s frontou, včetně vložení, odebrání, kontrolu prázdnosti a zjištění velikosti
+ * Tato třída představuje implementaci rozhraní {@link IAbstrFifo}, které definuje základní operace pro frontu
+ * (FIFO - First-In-First-Out)
  *
- * <p> Fronta {@link Queue} je dynamická datová struktura, kde se odebírají prvky v tom pořadí, v jakém byly vloženy
- *
- * @param <T> Typ prvků, které budou uloženy ve frontě
+ * @param <T> Generická data typu {@code T}
  */
-public final class AbstrFifo<T> {
+public final class AbstrFifo<T> implements IAbstrFifo<T> {
 
     private final IAbstrDoubleList<T> fronta;
 
@@ -21,38 +18,20 @@ public final class AbstrFifo<T> {
      */
     public AbstrFifo() { fronta = new AbstrDoubleList<>(); }
 
-    /**
-     * Vkládá prvek na konec fronty
-     *
-     * @param data Prvek, který bude vložen na konec fronty
-     */
+    @Override
     public void vloz(T data) { fronta.vlozPosledni(data); }
 
-    /**
-     * Odebere a vrátí první prvek z fronty
-     *
-     * @return Prvek z fronty
-     *
-     * @throws StrukturaException Pokud je fronta prázdná a nelze odebrat prvek
-     */
+    @Override
     public T odeber() throws StrukturaException {
         if (jePrazdna())
             throw new StrukturaException();
         return fronta.odeberPrvni();
     }
 
-    /**
-     * Zjišťuje, zda je fronta prázdná
-     *
-     * @return {@code true}, pokud je fronta prázdná, jinak {@code false}
-     */
+    @Override
     public boolean jePrazdna() { return fronta.jePrazdny(); }
 
-    /**
-     * Vrací aktuální velikost fronty
-     *
-     * @return Počet prvků ve frontě
-     */
+    @Override
     public int mohutnost() { return fronta.mohutnost(); }
 }
 

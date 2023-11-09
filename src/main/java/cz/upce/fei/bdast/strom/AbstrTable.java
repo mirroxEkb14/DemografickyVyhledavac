@@ -1,8 +1,6 @@
 package cz.upce.fei.bdast.strom;
 
-import cz.upce.fei.bdast.struktury.AbstrFifo;
-import cz.upce.fei.bdast.struktury.AbstrLifo;
-import cz.upce.fei.bdast.struktury.StrukturaException;
+import cz.upce.fei.bdast.struktury.*;
 import org.jetbrains.annotations.NotNull;
 
 import java.util.Iterator;
@@ -71,13 +69,18 @@ public final class AbstrTable<K extends Comparable<K>, V> implements IAbstrTable
     /**
      * Popis logiky:
      * <ol>
-     * <li> <b>while (iterator.hasNext())</b>: Vytvoří iterátor umožňující procházet uzly stromu ve formátu
-     * {@code in-order} (tj. od nejlevějšího ke kořeni, a poté postupně doprava). Iteruje přes všechny uzly
-     * stromu
-     * <li> <b>{@link AbstrTable#jeNula(Comparable, Comparable)}</b>: Pokud se klíče shodují, vrátí hodnotu
-     * tohoto uzlu {@code aktUzel.hodnota}
-     * <li> <b>throw new StromException()</b>: Pokud se klíče nerovnají žádnému uzlu ve stromu, dojde k vyhození výjimky {@link StromException}
-     * s chybovou zprávou říkájící, že prvek nebyl nalezen
+     * <li> Zajišťuje, že vstupní klíč a strom (koren) nejsou prázdné
+     *     <ul>
+     *     <li> <b>pozadatNePrazdnyKlic(klic)</b>
+     *     <li> <b>pozadatNePrazdnyKoren()</b>
+     *     </ul>
+     * <li> Rekurzivně vyhledává hodnoty v stromu až nenajde uzel, který obsahuje hledanou hodnotu, následně
+     * vrátí hodnotu tohoto uzlu. Pokud ale je nalezený uzel {@code null}, vyvolá výjimku
+     *     <ul>
+     *     <li> <b>final Uzel uzel = najdiRekurzivne(koren, klic)</b>
+     *     <li> <b>if (uzel == null)</b>
+     *     <li> <b>return uzel.hodnota</b>
+     *     </ul>
      * </ol>
      */
     @Override
@@ -85,59 +88,138 @@ public final class AbstrTable<K extends Comparable<K>, V> implements IAbstrTable
         pozadatNePrazdnyKlic(klic);
         pozadatNePrazdnyKoren();
 
-        final VnitrniHloubkaIterator iterator = new VnitrniHloubkaIterator();
-        while (iterator.hasNext()) {
-            final Uzel aktUzel = iterator.next();
-            if (jeNula(aktUzel.klic, klic))
-                return aktUzel.hodnota;
-        }
-        throw new StromException(ChybovaZpravaStromu.PRVEK_NENALEZEN.getZprava());
+        final Uzel uzel = najdiRekurzivne(koren, klic);
+        if (uzel == null)
+            throw new StromException(ChybovaZpravaStromu.PRVEK_NENALEZEN.getZprava());
+        return uzel.hodnota;
     }
 
     /**
-     * Popis logiky:
+     * Pomocná metoda pro {@link AbstrTable#vloz(Comparable, Object)}}
+     *
+     * <p>Popis logiký jednotlivých bloků kódu:
      * <ol>
-     * <li> <b>koren == null</b>: Pokud je strom prázdný, vytvoří kořen s novým uzlem a skončí
-     * <li> {@link AbstrTable#jeNula(Comparable, Comparable)}: Pokud nový klíč je roven aktuálnímu uzlu,
-     * to znamená, že klíč již existuje v stromu, tak aktualizuje hodnotu
-     * <li> {@link AbstrTable#jeZaporne(Comparable, Comparable)}: Pokud nový klíč je menší než aktuální
-     * uzel, pokračuje doleva. Pokud je levý potomek prázdný, vytvoří nový uzel
-     * <li> {@link AbstrTable#jeKladne(Comparable, Comparable)}: Pokud nový klíč je větší než aktuální
-     * uzel, pokračuje doprava. Pokud je pravý potomek prázdný, vytvoří nový uzel
+     * <li> Pokud je {@code uzel} prázdný (neexistuje), vrátí {@code null}
+     *     <ul>
+     *     <li> <b>if (uzel == null)</b>
+     *     </ul>
+     * <li> Porovnává klíč, podle kterého se provádí vyhledívaní s klíčem aktuálního uzlu
+     *     <ul>
+     *     <li> <b>jeNula(klic, uzel.klic)</b>: Pokud klíče jsou ekvivalentní, vrátí nalezený {@code uzel}
+     *     <li> <b>jeZaporne(klic, uzel.klic)</b>: Pokud klíč  je menší než klíč uzlu, pokračuje hledat v levém
+     *     podstromu rekurzivně
+     *     <li> <b>jeKladne(klic, uzel.klic)</b>: Pokud klíč je větší než klíč uzlu, pokračuje hledat v pravém
+     *     podstromu rekurzivně
+     *     </ul>
+     * </ol>
+     *
+     * @param uzel Aktuální uzel, ve kterém se provádí vyhledávání
+     * @param klic Klíč, podle kterého se vyhledává hodnota
+     *
+     * @return {@link Uzel} odpovídající zadanému klíči nebo {@code null}, pokud hodnota není nalezena
+     */
+    private Uzel najdiRekurzivne(Uzel uzel, K klic) {
+        if (uzel == null)
+            return null;
+
+        if (jeNula(klic, uzel.klic))
+            return uzel;
+        if (jeZaporne(klic, uzel.klic))
+            return najdiRekurzivne(uzel.vlevo, klic);
+        if (jeKladne(klic, uzel.klic))
+            return najdiRekurzivne(uzel.vpravo, klic);
+
+        return null;
+    }
+
+    /**
+     * Popis logiký jednotlivých bloků kódu:
+     * <ol>
+     * <li> Zkontroluje, zda klíč není prázdný a zda klíč již existuje ve stromu
+     *     <ul>
+     *     <li> <b>pozadatNePrazdnyKlic(klic)</b>
+     *     <li> <b>if (jeExistujicimKlicem(klic))</b>
+     *     </ul>
+     * <li> Pokud kořen stromu existuje, provede rekurzivní vkládání nového uzlu, v opačmém případě (kořen
+     * neexistuje), vytvoří nový uzel
+     *     <ul>
+     *     <li> <b>if (koren == null)</b>
+     *     <li> <b>else</b>
+     *     </ul>
+     * <li> Zvětší mohutnost kořene stromu o hodnotu konstanty
+     *     <ul>
+     *     <li> <b>koren.mohutnost</b>
+     *     </ul>
      * </ol>
      */
     @Override
     public void vloz(K klic, V hodnota) throws StromException {
         pozadatNePrazdnyKlic(klic);
-        if (koren == null) {
+        if (jeExistujicimKlicem(klic))
+            throw new StromException(ChybovaZpravaStromu.EXISTUJICI_KLIC.getZprava());
+
+        if (koren == null)
             koren = new Uzel(klic, hodnota, null);
-            return;
-        }
-        final VnitrniHloubkaIterator iterator = new VnitrniHloubkaIterator();
-        Uzel aktUzel;
-        while (iterator.hasNext()) {
-            aktUzel = iterator.next();
-            if (jeNula(klic, aktUzel.klic)) {
-                aktUzel.hodnota = hodnota;
-                return;
-            }
-            if (jeZaporne(klic, aktUzel.klic)) {
-                if (aktUzel.vlevo == null) {
-                    aktUzel.vlevo = new Uzel(klic, hodnota, aktUzel);
-                    zvysMohutnost(aktUzel);
-                    return;
-                }
-            }
-            if (jeKladne(klic, aktUzel.klic)) {
-                if (aktUzel.vpravo == null) {
-                    aktUzel.vpravo = new Uzel(klic, hodnota, aktUzel);
-                    zvysMohutnost(aktUzel);
-                    return;
-                }
-            }
-        }
+        else
+            vlozRekurzivne(klic, hodnota, koren);
+        koren.mohutnost += ZVETSOVAC_MOHUTNOSTI;
     }
 
+    /**
+     * Pomocná metoda pro {@link AbstrTable#vloz(Comparable, Object)}}
+     *
+     * <p>Popis logiký:
+     * <ol>
+     * <li> Provádí rekurzivní prohledávání stromu, dokud nenalezne uzel se zadaným klíčem {@code klic}
+     * </ol>
+     *
+     * @param klic Klíč, který se má zkontrolovat na existenci ve stromu
+     *
+     * @return {@code true}, pokud klíč již existuje ve stromu, jinak {@code false}
+     */
+    private boolean jeExistujicimKlicem(K klic) {
+        return najdiRekurzivne(koren, klic) != null;
+    }
+
+    /**
+     * Pomocná metoda pro {@link AbstrTable#vloz(Comparable, Object)}}
+     *
+     * <p>Popis logiký jednotlivých bloků kódu:
+     * <ol>
+     * <li> Porovná klíče a rozhodne, do kterého podstromu nový uzel patří
+     *     <ul>
+     *     <li> <b>jeKladne(aktualniUzel.klic, klic)</b>: Pokud klíč uzlu je větší než klíč nového uzlu {@code klic},
+     *     vloží nový uzel do levého podstromu
+     *          <ul>
+     *          <li> <b>else</b>: Pokud levý potomek uzlu {@code aktualniUzel.vlevo} není prázdný, volá se rekurzivně
+     *          tato metoda pro levého potomka
+     *          </ul>
+     *     <li> <b>else</b>: Pokud klíč uzlu je menší nebo roven klíči nového uzlu {@code klic}, vloží nový uzel do
+     *     pravého podstromu
+     *          <ul>
+     *          <li> <b>else</b>: Pokud pravý potomek uzlu {@code aktualniUzel.vpravo} není prázdný, volá se
+     *          rekurzivně tato metoda pro pravého potomka
+     *          </ul>
+     *     </ul>
+     * </ol>
+     *
+     * @param klic Klíč, který se má vložit
+     * @param hodnota Hodnota, která se má vložit
+     * @param aktualniUzel Aktuální uzel, ve kterém se hledá místo pro vložení nového uzlu (prvku)
+     */
+    private void vlozRekurzivne(K klic, V hodnota, Uzel aktualniUzel) {
+        if (jeKladne(aktualniUzel.klic, klic)) {
+            if (aktualniUzel.vlevo == null)
+                aktualniUzel.vlevo = new Uzel(klic, hodnota, aktualniUzel);
+            else
+                vlozRekurzivne(klic, hodnota, aktualniUzel.vlevo);
+        } else {
+            if (aktualniUzel.vpravo == null)
+                aktualniUzel.vpravo = new Uzel(klic, hodnota, aktualniUzel);
+            else
+                vlozRekurzivne(klic, hodnota, aktualniUzel.vpravo);
+        }
+    }
 
     /**
      * Popis logiký jednotlivých bloků kódu:
@@ -182,7 +264,7 @@ public final class AbstrTable<K extends Comparable<K>, V> implements IAbstrTable
         pozadatNePrazdnyKlic(klic);
         pozadatNePrazdnyKoren();
 
-        Uzel uzel = najdiUzel(klic);
+        Uzel uzel = najdiRekurzivne(koren, klic);
         if (uzel == null)
             throw new StromException(ChybovaZpravaStromu.PRVEK_NENALEZEN.getZprava());
 
@@ -204,29 +286,6 @@ public final class AbstrTable<K extends Comparable<K>, V> implements IAbstrTable
 
         aktualizujMohutnostPoOdebirani(uzel);
         return odebranaHodnota;
-    }
-
-    /**
-     * Pomocná metoda pro {@link AbstrTable#odeber(Comparable)}
-     *
-     * <p> Popis logiky:
-     * <ol>
-     * <li> <b>iterator.hasNext()</b>: Začíná iterací od kořene stromu a postupně prochází uzly stromu hloubkově
-     * (in-order) - nejdříve prochází levé podstromy, pak uzly a nakonec pravé podstromy
-     * <li> <b>jeNula()</b>: Pokud nalezne uzel se shodným klíčem, vrátí tento uzel - {@code uzel}
-     * <li> <b>return null</b>: Pokud projde celý strom a nenajde uzel shodný s cílovým klíčem, vrátí {@code null}
-     * (tj. hledaný uzel v stromu neexistuje)
-     * </ol>
-     */
-    private Uzel najdiUzel(K klic) {
-        final VnitrniHloubkaIterator iterator = new VnitrniHloubkaIterator();
-        Uzel uzel;
-        while (iterator.hasNext()) {
-            uzel = iterator.next();
-            if (jeNula(uzel.klic, klic))
-                return uzel;
-        }
-        return null;
     }
 
     /**
@@ -382,15 +441,20 @@ public final class AbstrTable<K extends Comparable<K>, V> implements IAbstrTable
 
     /**
      * Iterátor pro průchod stromem do šířky
+     *
+     * <p><b>Breadth-First Search (BFS)</b> je strategie pro prohledávání grafů nebo stromů, zaměřující se na
+     * prozkoumání všech uzlů v určitém "levelu" od počátečního uzlu nejprve, a teprve poté postupuje k uzlům
+     * v následujícím levelu. Tímto způsobem BFS postupuje "široce" v rámci jednoho levelu před tím, než se
+     * pohne na další level
      */
-    private class VnitrniSirkaIterator implements Iterator<Uzel> {
+    private class SirkaIterator implements Iterator<V> {
 
-        private final AbstrFifo<Uzel> fronta;
+        private final IAbstrFifo<Uzel> fronta;
 
         /**
          * Konstruktor vytvoří instanci iterátoru a inicializuje frontu, pokud strom není prázdný
          */
-        public VnitrniSirkaIterator() {
+        public SirkaIterator() {
             fronta = new AbstrFifo<>();
             if (koren != null)
                 fronta.vloz(koren);
@@ -417,51 +481,18 @@ public final class AbstrTable<K extends Comparable<K>, V> implements IAbstrTable
          * @throws NoSuchElementException Pokud není další prvek k dispozici
          */
         @Override
-        public Uzel next() {
-            if (!hasNext())
-                throw new NoSuchElementException();
-            try {
-                Uzel aktualniUzel = fronta.odeber();
-                if (aktualniUzel.vlevo != null)
-                    fronta.vloz(aktualniUzel.vlevo);
-                if (aktualniUzel.vpravo != null)
-                    fronta.vloz(aktualniUzel.vpravo);
-                return aktualniUzel;
-            } catch (StrukturaException e) {
-                throw new NoSuchElementException();
-            }
-        }
-    }
-
-    /**
-     * Iterátor pro vracení hodnot stromu zvenčí
-     */
-    private class SirkaIterator implements Iterator<V> {
-
-        private final AbstrFifo<Uzel> fronta;
-
-        public SirkaIterator() {
-            fronta = new AbstrFifo<>();
-            if (koren != null)
-                fronta.vloz(koren);
-        }
-
-        @Override
-        public boolean hasNext() { return !fronta.jePrazdna(); }
-
-        @Override
         public V next() {
             if (!hasNext())
                 throw new NoSuchElementException();
             try {
-                Uzel aktualniUzel = fronta.odeber();
+                final Uzel aktualniUzel = fronta.odeber();
                 if (aktualniUzel.vlevo != null)
                     fronta.vloz(aktualniUzel.vlevo);
                 if (aktualniUzel.vpravo != null)
                     fronta.vloz(aktualniUzel.vpravo);
                 return aktualniUzel.hodnota;
             } catch (StrukturaException e) {
-                throw new NoSuchElementException();
+                throw new NoSuchElementException(ChybovaZpravaStromu.PRAZDNA_FRONTA.getZprava());
             }
         }
     }
@@ -474,14 +505,14 @@ public final class AbstrTable<K extends Comparable<K>, V> implements IAbstrTable
      *
      * <p> <b>In-order DFS</b> nejprve navštíví levý podstrom, poté kořenový uzel (prvek) a nakonec pravý podstrom
      */
-    private class VnitrniHloubkaIterator implements Iterator<Uzel> {
+    private class HloubkaIterator implements Iterator<V> {
 
-        private final AbstrLifo<Uzel> zasobnik;
+        private final IAbstrLifo<Uzel> zasobnik;
 
         /**
          * Konstruktor vytvoří instanci iterátoru a inicializuje zásobník, pokud strom není prázdný
          */
-        public VnitrniHloubkaIterator() {
+        public HloubkaIterator() {
             zasobnik = new AbstrLifo<>();
             obnovZasobnik(koren);
         }
@@ -523,43 +554,6 @@ public final class AbstrTable<K extends Comparable<K>, V> implements IAbstrTable
          *
          * @throws NoSuchElementException Pokud není další prvek k dispozici
          */
-        @Override
-        public Uzel next() {
-            if (!hasNext())
-                throw new NoSuchElementException(ChybovaZpravaStromu.KONEC_ITERACE.getZprava());
-            try {
-                final Uzel aktUzel = zasobnik.odeber();
-                if (aktUzel.vpravo != null)
-                    obnovZasobnik(aktUzel.vpravo);
-                return aktUzel;
-            } catch (StrukturaException e) {
-                throw new NoSuchElementException(ChybovaZpravaStromu.PRAZDNY_ZASOBNIK.getZprava());
-            }
-        }
-    }
-
-    /**
-     * Iterátor pro vracení hodnot stromu zvenčí
-     */
-    private class HloubkaIterator implements Iterator<V> {
-
-        private final AbstrLifo<Uzel> zasobnik;
-
-        public HloubkaIterator() {
-            zasobnik = new AbstrLifo<>();
-            obnovZasobnik(koren);
-        }
-
-        private void obnovZasobnik(Uzel uzel) {
-            while (uzel != null) {
-                zasobnik.vloz(uzel);
-                uzel = uzel.vlevo;
-            }
-        }
-
-        @Override
-        public boolean hasNext() { return !zasobnik.jePrazdny(); }
-
         @Override
         public V next() {
             if (!hasNext())
