@@ -78,4 +78,13 @@ public interface IAbstrTable<K extends Comparable<K>, V> {
      * @return {@link Iterator} pro procházení stromu
      */
     Iterator<V> vytvorIterator(ETypProhl typ);
+
+    /**
+     * Vrací mohutnost uzlu (počet jeho potomků včetně něj samotného) se zadaným klíčem
+     *
+     * @param klic Klíč uzlu, jehož mohutnost se má zjistit
+     *
+     * @return Mohutnost uzlu se zadaným klíčem nebo {@code 0}, pokud uzel s klíčem není nalezen
+     */
+    int dejMohutnost(K klic);
 }

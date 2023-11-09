@@ -53,43 +53,6 @@ public class AbstrTableTest {
 
     public AbstrTableTest() {}
 
-    /**
-     * Spočítá mohutnost stromu 9počet prvků0 v celém stromu
-     *
-     * @param strom Binární strom pro výpočet mohutnosti
-     *
-     * @return Počet prvků v stromu
-     */
-    private int mohutnostStromu(IAbstrTable<Integer, String> strom) {
-        int pocetPrvku = 0;
-        final Iterator<String> iterator = strom.vytvorIterator(ETypProhl.HLOUBKA);
-        while (iterator.hasNext()) {
-            iterator.next();
-            pocetPrvku++;
-        }
-        return pocetPrvku;
-    }
-
-    /**
-     * Spočítá mohutnost konkrétního uzlu ve stromu na základě zadané hodnoty
-     *
-     * @param strom Strom, v rámci kterého se spočítá mohutnost uzlu
-     * @param hodnota Hodnota uzlu
-     *
-     * @return Počet prvků v uzlu s danou hodnotou
-     */
-    private int mohutnostUzlu(IAbstrTable<Integer, String> strom, String hodnota) {
-        int pocetPrvku = 0;
-        final Iterator<String> iterator = strom.vytvorIterator(ETypProhl.HLOUBKA);
-        while (iterator.hasNext()) {
-            final String aktHodnota = iterator.next();
-            if (aktHodnota.equals(hodnota))
-                pocetPrvku++;
-        }
-        return pocetPrvku;
-    }
-
-
     @BeforeClass
     public static void setUpClass() {}
 
@@ -406,24 +369,14 @@ public class AbstrTableTest {
     }
 
     /**
-     * Ověří, zda je mohutnost stromu správně {@code 0} po vytvoření prázdného stromu
-     */
-    @Test
-    public void test_04_01_mohutnost() {
-        int result = mohutnostStromu(strom);
-        int expected = 0;
-        assertEquals(expected, result);
-    }
-
-    /**
      * Ověří, zda je mohutnost stromu správně {@code 1}, když se do něj přidá jeden prvek
      */
     @Test
-    public void test_04_02_mohutnost() {
+    public void test_04_01_mohutnost() {
         try {
             strom.vloz(KLIC_A, HODNOTA_A);
 
-            int result = mohutnostStromu(strom);
+            int result = strom.dejMohutnost(KLIC_A);
             int expected = 1;
             assertEquals(expected, result);
         } catch (StromException ex) {
@@ -435,30 +388,13 @@ public class AbstrTableTest {
      * Zkontroluje, zda je mohutnost {@code 2}, když se do něj přidají dva prvky
      */
     @Test
-    public void test_04_03_mohutnost() {
+    public void test_04_02_mohutnost() {
         try {
             strom.vloz(KLIC_A, HODNOTA_A);
             strom.vloz(KLIC_B, HODNOTA_B);
 
-            int result = mohutnostStromu(strom);
+            int result = strom.dejMohutnost(KLIC_A);
             int expected = 2;
-            assertEquals(expected, result);
-        } catch (StromException ex) {
-            fail();
-        }
-    }
-
-    /**
-     * Zkontroluje, zda se mohutnost sníží o {@code 1}, když se odebere jeden prvek ze stromu
-     */
-    @Test
-    public void test_04_04_mohutnost() {
-        try {
-            strom.vloz(KLIC_A, HODNOTA_A);
-            strom.odeber(KLIC_A);
-
-            int result = mohutnostStromu(strom);
-            int expected = 0;
             assertEquals(expected, result);
         } catch (StromException ex) {
             fail();
@@ -469,7 +405,7 @@ public class AbstrTableTest {
      * Ověří, zda se mohutnost správně aktualizuje, když se odebere více prvků
      */
     @Test
-    public void test_04_05_mohutnost() {
+    public void test_04_03_mohutnost() {
         try {
             strom.vloz(KLIC_A, HODNOTA_A);
             strom.vloz(KLIC_B, HODNOTA_B);
@@ -477,55 +413,8 @@ public class AbstrTableTest {
             strom.odeber(KLIC_A);
             strom.odeber(KLIC_B);
 
-            int result = mohutnostStromu(strom);
+            int result = strom.dejMohutnost(KLIC_C);
             int expected = 1;
-            assertEquals(expected, result);
-        } catch (StromException ex) {
-            fail();
-        }
-    }
-
-    /**
-     * Zkontroluje, zda mohutnost uzlu správně počítá počet prvků s danou hodnotou v prázdném stromě.
-     * Očekává se návrat hodnoty {@code 0}
-     */
-    @Test
-    public void test_04_06_mohutnost() {
-        AbstrTable<Integer, String> strom = new AbstrTable<>();
-        int result = mohutnostUzlu(strom, HODNOTA_A);
-        int expected = 0;
-        assertEquals(expected, result);
-    }
-
-    /**
-     * Ověřuje, zda mohutnost uzlu správně počítá počet prvků s danou hodnotou v stromu s jedním uzlem.
-     * Očekává se návrat hodnoty {@code 1}
-     */
-    @Test
-    public void test_04_07_mohutnost() {
-        try {
-            AbstrTable<Integer, String> strom = new AbstrTable<>();
-            strom.vloz(KLIC_B, HODNOTA_B);
-            int result = mohutnostUzlu(strom, HODNOTA_B);
-            int expected = 1;
-            assertEquals(expected, result);
-        } catch (StromException ex) {
-            fail();
-        }
-    }
-
-    /**
-     * Kontroluje, zda mohutnost uzlu správně počítá počet prvků s danou hodnotou v stromu s více uzly.
-     * Očekává se návrat počtu prvků se shodnou hodnotou
-     */
-    @Test
-    public void test_04_08_mohutnost() {
-        try {
-            strom.vloz(KLIC_B, HODNOTA_B);
-            strom.vloz(KLIC_A, HODNOTA_A);
-            strom.vloz(KLIC_C, HODNOTA_B);
-            int result = mohutnostUzlu(strom, HODNOTA_B);
-            int expected = 2;
             assertEquals(expected, result);
         } catch (StromException ex) {
             fail();
@@ -534,20 +423,73 @@ public class AbstrTableTest {
 
     /**
      * Ověřuje, jak mohutnost uzlu reaguje, když hledá hodnotu, která se v stromu nenachází.
-     * Očekává se návrat hodnoty {@code 0}
+     * Očekává se návrat hodnoty {@code -1}, což znamená, že uzel s požadovaným klíčem v stomu není
      */
     @Test
-    public void test_04_09_mohutnost() {
+    public void test_04_04_mohutnost() {
         try {
             strom.vloz(KLIC_B, HODNOTA_B);
             strom.vloz(KLIC_A, HODNOTA_A);
-            int result = mohutnostUzlu(strom, HODNOTA_C);
-            int expected = 0;
+            int result = strom.dejMohutnost(KLIC_C);
+            int expected = -1;
             assertEquals(expected, result);
         } catch (StromException ex) {
             fail();
         }
     }
+
+    /**
+     * Testuje mohutnost jednotlivých prvků v stromu. Když se do stromu přidává nový uzel, jeho mohutnost je
+     * automaticky {@code 1} (může zatím nemít žádné potomky, ale stejně mohutnost je {@code 1})
+     *
+     * <p> Popis logiky:
+     * <ol>
+     * <li> <b>strom.vloz(KLIC_A, HODNOTA_A)</b>: Vloží první prvek ({5: A}) do stromu jako kořen (jehož mohutnost je {@code 1})
+     * <li> <b>strom.vloz(KLIC_B, HODNOTA_B)</b>: Vloží druhý prvek ({3: B}) jako levého potomka kořene (muhutnost
+     * tohoto nově vloženého prvku je {@code 1}). Začne jít nahoru v rámci stromu a zvyšovat mohutnost všech prvků na
+     * cestě (v tomto případě dojde k zvyšování mohutnosti pouze u rodiče prvku {3: B}, tj. kořene). Teď mohutnost
+     * kořene jsou {@code 2}
+     * <li> <b>strom.vloz(KLIC_C, HODNOTA_C)</b>: Vloží třetí prvek ({7: C}) jako pravého potomka kořene (mohutnost
+     * tohoto pravého potomka je autimaticky {@code 1}). Zvyší mojutnost kořene o jedničku. Teď mohutnost kořene jsou {@code 3}
+     * <li> <b>strom.vloz(KLIC_G, HODNOTA_G)</b>: Vloží čtvrtý prvek ({8: G}) jako pravého potomka prvku {7: C}
+     * (mohutnost tohoto prvku {8: G} je automaticky {@code 1}). Zvyší mohutnost prvků nad těm nově vloženým prvkem, tj.
+     * mohutnost prvku {7: C} a {5: A} o jedničku. Teď mohutnost prvku {7: C} jsou 2 a mohutnost kořene jsou {@code 4}
+     * </ol>
+     *
+     * <p> Přehled stromu:
+     *           5(A)
+     *          /   \
+     *        3(B)  7(C)
+     *                \
+     *                8(G)
+     */
+    @Test
+    public void test_04_05_mohutnost() {
+        try {
+            strom.vloz(KLIC_A, HODNOTA_A);
+            strom.vloz(KLIC_B, HODNOTA_B);
+            strom.vloz(KLIC_C, HODNOTA_C);
+            strom.vloz(KLIC_G, HODNOTA_G);
+
+            int resultA = strom.dejMohutnost(KLIC_A);
+            int resultB = strom.dejMohutnost(KLIC_B);
+            int resultC = strom.dejMohutnost(KLIC_C);
+            int resultG = strom.dejMohutnost(KLIC_G);
+
+            int expectedA = 4;
+            int expectedB = 1;
+            int expectedC = 2;
+            int expectedG = 1;
+
+            assertEquals(expectedA, resultA);
+            assertEquals(expectedB, resultB);
+            assertEquals(expectedC, resultC);
+            assertEquals(expectedG, resultG);
+        } catch (StromException ex) {
+            fail();
+        }
+    }
+
 
     /**
      * Ověřuje, zda iterátor správně prochází strom do hloubky (in-order) a zda prochází prvky ve správném pořadí.

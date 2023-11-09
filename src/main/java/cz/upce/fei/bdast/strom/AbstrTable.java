@@ -24,9 +24,10 @@ public final class AbstrTable<K extends Comparable<K>, V> implements IAbstrTable
      */
     private final int NULTA_HODNOTA = 0;
     /**
-     * Konstanta pro zvýšení velikosti stromu
+     * Konstanta reprezentuje hodnotu mohutnosti v případě, když není nalezen prvek v rámci stromu. Používá se
+     * zejména u metody {@link AbstrTable#dejMohutnost(Comparable)}
      */
-    private final int ZVETSOVAC_MOHUTNOSTI = 1;
+    private final int UKAZATEL_ABSENCE = -1;
 
     /**
      * Privátní třída reprezentující uzel stromu. Každý uzel má klíč, hodnotu,
@@ -45,7 +46,7 @@ public final class AbstrTable<K extends Comparable<K>, V> implements IAbstrTable
             this.hodnota = hodnota;
             this.rodic = rodic;
             vlevo = vpravo = null;
-            mohutnost = ZVETSOVAC_MOHUTNOSTI;
+            mohutnost = NULTA_HODNOTA;
         }
     }
 
@@ -158,11 +159,14 @@ public final class AbstrTable<K extends Comparable<K>, V> implements IAbstrTable
         if (jeExistujicimKlicem(klic))
             throw new StromException(ChybovaZpravaStromu.EXISTUJICI_KLIC.getZprava());
 
-        if (koren == null)
+        if (koren == null) {
             koren = new Uzel(klic, hodnota, null);
-        else
-            vlozRekurzivne(klic, hodnota, koren);
-        zvysMohutnost(koren);
+            aktualizujMohutnostPoVlozeni(koren);
+        }
+        else {
+            final Uzel novyUzel = vlozRekurzivne(klic, hodnota, koren);
+            aktualizujMohutnostPoVlozeni(novyUzel);
+        }
     }
 
     /**
@@ -206,18 +210,35 @@ public final class AbstrTable<K extends Comparable<K>, V> implements IAbstrTable
      * @param klic Klíč, který se má vložit
      * @param hodnota Hodnota, která se má vložit
      * @param aktualniUzel Aktuální uzel, ve kterém se hledá místo pro vložení nového uzlu (prvku)
+     *
+     * @return Nově vložený uzel
      */
-    private void vlozRekurzivne(K klic, V hodnota, Uzel aktualniUzel) {
+    private Uzel vlozRekurzivne(K klic, V hodnota, Uzel aktualniUzel) {
+        Uzel novyUzel;
         if (jeKladne(aktualniUzel.klic, klic)) {
             if (aktualniUzel.vlevo == null)
-                aktualniUzel.vlevo = new Uzel(klic, hodnota, aktualniUzel);
+                novyUzel = aktualniUzel.vlevo = new Uzel(klic, hodnota, aktualniUzel);
             else
-                vlozRekurzivne(klic, hodnota, aktualniUzel.vlevo);
+                novyUzel = vlozRekurzivne(klic, hodnota, aktualniUzel.vlevo);
         } else {
             if (aktualniUzel.vpravo == null)
-                aktualniUzel.vpravo = new Uzel(klic, hodnota, aktualniUzel);
+                novyUzel = aktualniUzel.vpravo = new Uzel(klic, hodnota, aktualniUzel);
             else
-                vlozRekurzivne(klic, hodnota, aktualniUzel.vpravo);
+                novyUzel = vlozRekurzivne(klic, hodnota, aktualniUzel.vpravo);
+        }
+        return novyUzel;
+    }
+
+    /**
+     * Aktualizuje mohutnost uzlů po vložení nového uzlu do stromu. Postupuje od vloženého uzlu až ke kořeni
+     * stromu a zvyšuje mohutnost každého uzlu na cestě
+     *
+     * @param novyUzel Uzel, od kterého se začíná aktualizace mohutnosti
+     */
+    private void aktualizujMohutnostPoVlozeni(Uzel novyUzel) {
+        while (novyUzel != null) {
+            zvysMohutnost(novyUzel);
+            novyUzel = novyUzel.rodic;
         }
     }
 
@@ -569,6 +590,14 @@ public final class AbstrTable<K extends Comparable<K>, V> implements IAbstrTable
                 throw new NoSuchElementException(ChybovaZpravaStromu.PRAZDNY_ZASOBNIK.getZprava());
             }
         }
+    }
+
+    @Override
+    public int dejMohutnost(K klic) {
+        final Uzel hledanyUzel = najdiRekurzivne(koren, klic);
+        if (hledanyUzel == null)
+            return UKAZATEL_ABSENCE;
+        return hledanyUzel.mohutnost;
     }
 
     /**
