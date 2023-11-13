@@ -1,6 +1,9 @@
 package cz.upce.fei.bdast.strom;
 
 import cz.upce.fei.bdast.struktury.*;
+import cz.upce.fei.bdast.vyjimky.StromException;
+import cz.upce.fei.bdast.vyjimky.StrukturaException;
+import cz.upce.fei.bdast.vyjimky.zpravy.ChybovaZpravaStromu;
 import org.jetbrains.annotations.NotNull;
 
 import java.util.Iterator;

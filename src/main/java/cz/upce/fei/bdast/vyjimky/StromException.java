@@ -1,4 +1,4 @@
-package cz.upce.fei.bdast.strom;
+package cz.upce.fei.bdast.vyjimky;
 
 /**
  * Výjimková třída, která rozšiřuje základní obecnou třídu výjimky {@link Exception} aslouží k reprezentaci

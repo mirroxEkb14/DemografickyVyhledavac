@@ -6,7 +6,9 @@ import cz.upce.fei.bdast.generator.ObecGenerator;
 import cz.upce.fei.bdast.strom.AbstrTable;
 import cz.upce.fei.bdast.strom.ETypProhl;
 import cz.upce.fei.bdast.strom.IAbstrTable;
-import cz.upce.fei.bdast.strom.StromException;
+import cz.upce.fei.bdast.vyjimky.AgendaKrajException;
+import cz.upce.fei.bdast.vyjimky.StromException;
+import cz.upce.fei.bdast.vyjimky.zpravy.ChybovaZpravaKraje;
 import org.jetbrains.annotations.NotNull;
 
 import java.util.Iterator;

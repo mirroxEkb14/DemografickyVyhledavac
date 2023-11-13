@@ -1,8 +1,8 @@
 package cz.upce.fei.bdast.strom;
 
+import cz.upce.fei.bdast.vyjimky.StromException;
+
 import java.util.Iterator;
-import java.util.stream.Stream;
-import java.util.stream.StreamSupport;
 
 /**
  * Strom - je graf, kde mezi každými dvěma vrcholy existuje cesta a kde existuje jeden kořen ({@code root}),

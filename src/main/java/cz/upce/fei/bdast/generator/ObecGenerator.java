@@ -3,7 +3,7 @@ package cz.upce.fei.bdast.generator;
 import cz.upce.fei.bdast.data.Obec;
 import cz.upce.fei.bdast.strom.ETypProhl;
 import cz.upce.fei.bdast.strom.IAbstrTable;
-import cz.upce.fei.bdast.strom.StromException;
+import cz.upce.fei.bdast.vyjimky.StromException;
 import org.jetbrains.annotations.NotNull;
 
 import java.util.Iterator;

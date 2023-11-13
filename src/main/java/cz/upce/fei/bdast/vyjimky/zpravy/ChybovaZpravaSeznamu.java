@@ -1,10 +1,11 @@
-package cz.upce.fei.bdast.gui.koreny;
+package cz.upce.fei.bdast.vyjimky.zpravy;
 
 /**
  * {@link Enum} pro chybové zprávy seznamu obsahující konkrétní chybové zprávy spojené s operacemi na seznamu
  */
 public enum ChybovaZpravaSeznamu {
-    CHYBA_PRI_VLOZENI("Došlo ke chybě při vložení nové obce");
+    CHYBA_PRI_VLOZENI("Došlo ke chybě při vložení nové obce"),
+    CHYBA_PRI_OBNOVENI("Došlo ke chybě při obnovení seznamu");
 
     private final String zprava;
 

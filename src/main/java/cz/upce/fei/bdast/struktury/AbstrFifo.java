@@ -2,6 +2,7 @@ package cz.upce.fei.bdast.struktury;
 
 import cz.upce.fei.bdast.seznam.AbstrDoubleList;
 import cz.upce.fei.bdast.seznam.IAbstrDoubleList;
+import cz.upce.fei.bdast.vyjimky.StrukturaException;
 
 /**
  * Tato třída představuje implementaci rozhraní {@link IAbstrFifo}, které definuje základní operace pro frontu

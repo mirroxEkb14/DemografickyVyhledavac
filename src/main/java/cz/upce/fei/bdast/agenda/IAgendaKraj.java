@@ -1,8 +1,7 @@
 package cz.upce.fei.bdast.agenda;
 
 import cz.upce.fei.bdast.data.Obec;
-import cz.upce.fei.bdast.strom.IAbstrTable;
-import cz.upce.fei.bdast.generator.ObecGenerator;
+import cz.upce.fei.bdast.vyjimky.AgendaKrajException;
 
 import java.util.Iterator;
 

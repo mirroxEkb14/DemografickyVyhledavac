@@ -5,7 +5,6 @@ import cz.upce.fei.bdast.gui.kontejnery.Titulek;
 import cz.upce.fei.bdast.gui.kontejnery.TitulkovyPanel;
 import cz.upce.fei.bdast.gui.kontejnery.Tlacitko;
 import cz.upce.fei.bdast.gui.koreny.SeznamPanel;
-import javafx.scene.control.Alert;
 import javafx.scene.control.Button;
 import javafx.scene.layout.GridPane;
 import org.jetbrains.annotations.NotNull;
@@ -88,6 +87,6 @@ public final class KomponentStrom extends TitulkovyPanel {
      *
      */
     private void nastavUdalostVlozeni() {
-        new Alert(Alert.AlertType.CONFIRMATION, "FUNGUJE").showAndWait();
+
     }
 }

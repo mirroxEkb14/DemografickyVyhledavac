@@ -1,4 +1,4 @@
-package cz.upce.fei.bdast.strom;
+package cz.upce.fei.bdast.vyjimky.zpravy;
 
 /**
  * Třída reprezentuje výčtový typ pro různé chybové zprávy v datové struktuře Strom. Každá konstanta

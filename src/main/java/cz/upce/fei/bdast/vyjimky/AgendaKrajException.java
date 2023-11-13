@@ -1,4 +1,4 @@
-package cz.upce.fei.bdast.agenda;
+package cz.upce.fei.bdast.vyjimky;
 
 /**
  * Třída je odvozena od třídy {@link Exception} a slouží k definici vlastního typu výjimky, který je

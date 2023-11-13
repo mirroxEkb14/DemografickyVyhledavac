@@ -1,4 +1,4 @@
-package cz.upce.fei.bdast.gui.koreny;
+package cz.upce.fei.bdast.vyjimky;
 
 /**
  * Vyjímka představující chybu v seznamovém panelu používající se pro signalizaci neúspěšných operací v seznamu

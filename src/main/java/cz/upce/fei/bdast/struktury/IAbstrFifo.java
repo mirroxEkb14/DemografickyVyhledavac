@@ -1,6 +1,7 @@
 package cz.upce.fei.bdast.struktury;
 
 import cz.upce.fei.bdast.seznam.IAbstrDoubleList;
+import cz.upce.fei.bdast.vyjimky.StrukturaException;
 
 import java.util.Queue;
 

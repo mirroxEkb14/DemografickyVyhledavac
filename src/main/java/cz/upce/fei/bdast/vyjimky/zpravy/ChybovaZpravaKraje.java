@@ -1,4 +1,4 @@
-package cz.upce.fei.bdast.agenda;
+package cz.upce.fei.bdast.vyjimky.zpravy;
 
 /**
  * Tento výčtový typ slouží k definici různých chybových zpráv, které mohou být použity v rámci aplikace
