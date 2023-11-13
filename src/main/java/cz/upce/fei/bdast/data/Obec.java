@@ -33,6 +33,18 @@ public final class Obec {
         this.celkem = celkem;
     }
 
+    @Override
+    public String toString() {
+        return "Obec{" +
+                "cisloKraje=" + cisloKraje +
+                ", nazev='" + nazev + '\'' +
+                ", psc='" + psc + '\'' +
+                ", pocetMuzu=" + pocetMuzu +
+                ", pocetZen=" + pocetZen +
+                ", celkem=" + celkem +
+                '}';
+    }
+
 /**
  * Gettery pro získání atributů této třídy
  *
