@@ -1,4 +1,4 @@
-package cz.upce.fei.bdast.gui.kontejnery;
+package cz.upce.fei.bdast.gui;
 
 import cz.upce.fei.bdast.gui.koreny.PrikazPanel;
 
@@ -12,7 +12,16 @@ public enum Titulek {
     BTN_ODEBER("Odeber"),
     BTN_ITERUJ("Iteruj"),
     BTN_PRAZDNOST("Prázdnost"),
-    BTN_ZRUS("Zruš");
+    BTN_ZRUS("Zruš"),
+    TLACITKO_FAJN("Fajn"),
+    TLACITKO_ZRUSIT("Zrušit"),
+    LABEL_CISLO("Číslo obce: "),
+    LABEL_NAZEV("Název obce: "),
+    LABEL_PSC("PSČ obce: "),
+    LABEL_MUZE("Počet mužů: "),
+    LABEL_ZENY("Počet žen: "),
+    HLAVICKA_DIALOG_VLOZENI("Vytvoření Nové Obce"),
+    HLAVICKA_TITULKOVEHO_PANELU_VLOZENI("Zadávání údajů");
 
     private final String nadpis;
 

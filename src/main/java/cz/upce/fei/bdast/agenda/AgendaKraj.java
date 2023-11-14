@@ -22,10 +22,11 @@ import java.util.Iterator;
  */
 public final class AgendaKraj implements IAgendaKraj {
 
-    private static AgendaKraj instance;
-
     private IAbstrTable<String, Obec> strom;
     private Generator obecGenerator;
+
+// <editor-fold defaultstate="collapsed" desc="Instance a Tovární Metoda">
+    private static AgendaKraj instance;
 
     /**
      * Tovární metoda (factory method) pro vytvoření a získání instance Singletonu
@@ -37,6 +38,7 @@ public final class AgendaKraj implements IAgendaKraj {
             instance = new AgendaKraj();
         return instance;
     }
+// </editor-fold>
 
     private AgendaKraj() { nastav(); }
 

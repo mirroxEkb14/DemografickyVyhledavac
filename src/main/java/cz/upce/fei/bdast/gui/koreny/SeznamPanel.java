@@ -1,11 +1,16 @@
 package cz.upce.fei.bdast.gui.koreny;
 
 import cz.upce.fei.bdast.agenda.AgendaKraj;
+import cz.upce.fei.bdast.strom.ETypProhl;
+import cz.upce.fei.bdast.strom.IAbstrTable;
 import cz.upce.fei.bdast.vyjimky.AgendaKrajException;
 import cz.upce.fei.bdast.data.Obec;
 import cz.upce.fei.bdast.vyjimky.zpravy.ChybovaZpravaSeznamu;
 import cz.upce.fei.bdast.vyjimky.SeznamPanelException;
 import javafx.scene.control.ListView;
+import org.jetbrains.annotations.NotNull;
+
+import java.util.Iterator;
 
 /**
  * Třída reprezentující seznamový panel. Je rozšířením {@link ListView} s dalšími funkcionalitami. Obsahuje odkaz
@@ -19,7 +24,7 @@ public final class SeznamPanel extends ListView<String> implements ISeznamPanel<
     /**
      * Deklarace a inicializace instanci na agendu obcí obsahující základní metody pro správu stromu
      */
-    private final AgendaKraj strom = AgendaKraj.getInstance();
+    private final AgendaKraj agendaKraj = AgendaKraj.getInstance();
 
 // <editor-fold defaultstate="collapsed" desc="Instance a Tovární Metoda">
     private static SeznamPanel instance;
@@ -38,25 +43,36 @@ public final class SeznamPanel extends ListView<String> implements ISeznamPanel<
     private SeznamPanel() { this.nastavSeznamPanel(this); }
 
     @Override
-    public void pridej(Obec obec) throws SeznamPanelException {
+    public void pridej(@NotNull Obec obec) throws SeznamPanelException {
         try {
-
-
-            strom.vloz(obec);
+            pridejPrvek(obec);
+            agendaKraj.vloz(obec);
         } catch (AgendaKrajException ex) {
             throw new SeznamPanelException(ChybovaZpravaSeznamu.CHYBA_PRI_VLOZENI.getZprava());
         }
     }
 
+    /**
+     * Pridá prvek uvedený v argumentu do tohoto {@link ListView} seznamu
+     *
+     * @param obec Instance nově vytvořeného uzlu stromu
+     */
+    private void pridejPrvek(@NotNull Obec obec) {
+        this.getItems().add(obec.toString());
+    }
+
     @Override
-    public void obnovSeznam() throws SeznamPanelException {
-//        try {
-//
-//
-//            strom.vloz();
-//        } catch (AgendaKrajException ex) {
-//            throw new SeznamPanelException(ChybovaZpravaSeznamu.CHYBA_PRI_OBNOVENI.getZprava());
-//        }
+    public void obnovSeznam(@NotNull IAbstrTable<String, Obec> strom) throws SeznamPanelException {
+        try {
+            final Iterator<Obec> iterator = strom.vytvorIterator(ETypProhl.HLOUBKA);
+            while (iterator.hasNext()) {
+                final Obec aktualniObec = iterator.next();
+                pridejPrvek(aktualniObec);
+                agendaKraj.vloz(aktualniObec);
+            }
+        } catch (AgendaKrajException ex) {
+            throw new SeznamPanelException(ChybovaZpravaSeznamu.CHYBA_PRI_OBNOVENI.getZprava());
+        }
     }
 
     @Override

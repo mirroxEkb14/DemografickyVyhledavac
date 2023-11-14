@@ -2,6 +2,7 @@ package cz.upce.fei.bdast.gui.koreny;
 
 import cz.upce.fei.bdast.agenda.AgendaKraj;
 import cz.upce.fei.bdast.data.Obec;
+import cz.upce.fei.bdast.strom.IAbstrTable;
 import cz.upce.fei.bdast.vyjimky.SeznamPanelException;
 import javafx.scene.control.ListCell;
 import javafx.scene.control.ListView;
@@ -31,16 +32,24 @@ public interface ISeznamPanel<T> {
     /**
      * Přidá novou obec do seznamu {@link ListView} a samotného stromu pomocí její agendy {@link AgendaKraj}
      *
-     * @throws SeznamPanelException
+     * @throws SeznamPanelException Když se vyskytne výjimka během procesu vkládání prvku do bunárního stromu
+     * používáním správce tohoto stromu {@link AgendaKraj}
      */
     void pridej(Obec obec) throws SeznamPanelException;
 
     /**
-     * Obnoví obsah seznamu
+     * Obnoví obsah seznamů:
+     * <ul>
+     * <li> Přidá prvky do {@link ListView} seznamu pro zobrazení uživateli
+     * <li> Přidá prvky do {@link IAbstrTable} stromu
+     * </ul>
      *
-     * @throws SeznamPanelException
+     * @param strom Strom prvků pro vkládání
+     *
+     * @throws SeznamPanelException Když se vyvolá výjimka při vkládání prvku do vnitřního stromu přes
+     * {@link AgendaKraj}
      */
-    void obnovSeznam() throws SeznamPanelException;
+    void obnovSeznam(IAbstrTable<String, Obec> strom) throws SeznamPanelException;
 
     /**
      * Pomocní zjišťovací metoda vrací aktuální mohutnost seznamu

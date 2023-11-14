@@ -1,5 +1,8 @@
 package cz.upce.fei.bdast.data;
 
+import org.jetbrains.annotations.Contract;
+import org.jetbrains.annotations.NotNull;
+
 /**
  * Třída reprezentuje obec nebo územní jednotku a obsahuje statistická data o této obci. Je nezměnitelná
  * (immutable), což znamená, že její stav nelze po vytvoření změnit
@@ -34,7 +37,7 @@ public final class Obec {
     }
 
     @Override
-    public String toString() {
+    public @NotNull String toString() {
         return "Obec{" +
                 "cisloKraje=" + cisloKraje +
                 ", nazev='" + nazev + '\'' +

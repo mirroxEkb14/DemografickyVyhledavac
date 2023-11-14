@@ -1,13 +1,22 @@
 package cz.upce.fei.bdast.gui.komponenty;
 
+import cz.upce.fei.bdast.data.Obec;
+import cz.upce.fei.bdast.gui.alerty.ErrorAlert;
+import cz.upce.fei.bdast.gui.dialogy.DialogVlozeni;
 import cz.upce.fei.bdast.gui.kontejnery.MrizkovyPanel;
-import cz.upce.fei.bdast.gui.kontejnery.Titulek;
+import cz.upce.fei.bdast.gui.Titulek;
 import cz.upce.fei.bdast.gui.kontejnery.TitulkovyPanel;
 import cz.upce.fei.bdast.gui.kontejnery.Tlacitko;
 import cz.upce.fei.bdast.gui.koreny.SeznamPanel;
+import cz.upce.fei.bdast.gui.tvurce.TvurceObce;
+import cz.upce.fei.bdast.vyjimky.SeznamPanelException;
+import cz.upce.fei.bdast.vyjimky.zpravy.ZpravaLogu;
 import javafx.scene.control.Button;
+import javafx.scene.control.ButtonType;
 import javafx.scene.layout.GridPane;
 import org.jetbrains.annotations.NotNull;
+
+import java.util.Optional;
 
 /**
  * Třída rozšiřující titulkový panel a obsahující odkazy na tlačítka pro manipulaci se stromem
@@ -44,17 +53,22 @@ public final class KomponentStrom extends TitulkovyPanel {
 
         this.najdiBtn = new Tlacitko(Titulek.BTN_NAJDI.getNadpis());
         this.najdiBtn.setDisable(true);
+        this.najdiBtn.setOnAction(actionEvent -> nastavUdalostVyhledavani());
 
         this.odeberBtn = new Tlacitko(Titulek.BTN_ODEBER.getNadpis());
         this.odeberBtn.setDisable(true);
+        this.odeberBtn.setOnAction(actionEvent -> nastavUdalostOdebirani());
 
         this.iterujBtn = new Tlacitko(Titulek.BTN_ITERUJ.getNadpis());
         this.iterujBtn.setDisable(true);
+        this.iterujBtn.setOnAction(actionEvent -> nastavUdalostIterace());
 
         this.prazdnostBtn = new Tlacitko(Titulek.BTN_PRAZDNOST.getNadpis());
+        this.prazdnostBtn.setOnAction(actionEvent -> nastavUdalostPrazdnosti());
 
         this.zrusBtn = new Tlacitko(Titulek.BTN_ZRUS.getNadpis());
         this.zrusBtn.setDisable(true);
+        this.zrusBtn.setOnAction(actionEvent -> nastavUdalostZruseni());
 
         nastavKomponentStrom();
     }
@@ -87,6 +101,52 @@ public final class KomponentStrom extends TitulkovyPanel {
      *
      */
     private void nastavUdalostVlozeni() {
+        final DialogVlozeni dialog = new DialogVlozeni();
+        final Optional<ButtonType> odpoved = dialog.showAndWait();
+        if (odpoved.isPresent() && dialog.jeTlacitkoOk(odpoved.get())) {
+            new TvurceObce().vytvor(dialog)
+                    .ifPresent(obec -> {
+                        try {
+                            seznamPanel.pridej(obec);
+                        } catch (SeznamPanelException e) {
+                            ErrorAlert.nahlasErrorLog(ZpravaLogu.LOG_TVORENI.getZprava());
+                        }
+                    });
+        }
+    }
+
+    /**
+     *
+     */
+    private void nastavUdalostVyhledavani() {
+
+    }
+
+    /**
+     *
+     */
+    private void nastavUdalostOdebirani() {
+
+    }
+
+    /**
+     *
+     */
+    private void nastavUdalostIterace() {
+
+    }
+
+    /**
+     *
+     */
+    private void nastavUdalostPrazdnosti() {
+
+    }
+
+    /**
+     *
+     */
+    private void nastavUdalostZruseni() {
 
     }
 }
