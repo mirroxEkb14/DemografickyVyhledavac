@@ -21,7 +21,7 @@ public final class InfoAlert extends Alert {
      * Konstanty pro výchozí nastavení dialogového okna
      */
     private final String TITULEK = "Informační Alert";
-    private final String ZAHLAVI = "Zpracovaný Prvek";
+    private final String ZAHLAVI = "Požadovaný údaj";
 
     /**
      * Konstruktor inicializuje informační alert a nastavuje titulek a nadpis tohoto dialogového okna

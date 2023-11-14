@@ -89,6 +89,16 @@ public interface ISeznamPanel<T> {
     void vypisStrom();
 
     /**
+     * Vymaže výpis celého stromu a vratí výchozí stav, tj. ten, který byl uložen před výpisem
+     */
+    void schovejStrom();
+
+    /**
+     * Vyprázdnění celého seznamu
+     */
+    void vyprazdni();
+
+    /**
      * Pomocní zjišťovací metoda vrací aktuální mohutnost seznamu
      *
      * @return Počet prvků v seznamu

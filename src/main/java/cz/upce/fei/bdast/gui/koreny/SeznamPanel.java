@@ -28,7 +28,8 @@ public final class SeznamPanel extends ListView<String> implements ISeznamPanel<
      */
     private final IAgendaKraj agendaKraj = AgendaKraj.getInstance();
     /**
-     *
+     * Vnitřní {@link ListView} obsahuje stav seznamu před iterací, resp. před zobrazením vnitřní hierarchii
+     * binárního vyhledávacího stromu.
      */
     private final ListView<String> ulozenyStav = new ListView<>();
 
@@ -128,19 +129,29 @@ public final class SeznamPanel extends ListView<String> implements ISeznamPanel<
         this.getItems().add(agendaKraj.vypisStrom());
     }
 
+    @Override
+    public void schovejStrom() { nactiPredchoziStav(); }
+
     /**
-     *
+     * Uloží aktuální stav seznamu před výpisem vnitřní hierarchii binátního stromu
      */
     private void ulozAktualniStav() {
         ulozenyStav.getItems().addAll(this.getItems());
     }
 
     /**
+     * Vymaže výpis hierarchii stromu a načte uložený stav seznamu
      *
+     * <p> <b>Poznámka</b>: Je zapotřebí vyprázdnit uložený stav seznamu po jeho vracení zpátky
      */
     private void nactiPredchoziStav() {
-       this.getItems().addAll(ulozenyStav.getItems());
+        this.getItems().clear();
+        this.getItems().addAll(ulozenyStav.getItems());
+        ulozenyStav.getItems().clear();
     }
+
+    @Override
+    public void vyprazdni() { this.getItems().clear(); }
 
     @Override
     public int dejMohutnost() { return this.getItems().size(); }
