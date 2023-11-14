@@ -11,7 +11,9 @@ import org.jetbrains.annotations.NotNull;
  * Třída reprezentuje dialogové okno pro vkládání nových údajů o obci
  *
  * <p> Implementuje rozhraní {@link DialogovyKomponent} definující metody pro výchozí nastavení/ošetřování
- * prvků tohoto ialogu
+ * prvků tohoto dialogu
+ *
+ * @see Dialog
  */
 public final class DialogVlozeni extends Dialog<ButtonType>
         implements DialogovyKomponent {

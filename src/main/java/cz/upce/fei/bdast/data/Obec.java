@@ -1,6 +1,5 @@
 package cz.upce.fei.bdast.data;
 
-import org.jetbrains.annotations.Contract;
 import org.jetbrains.annotations.NotNull;
 
 /**

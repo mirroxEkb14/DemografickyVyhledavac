@@ -14,12 +14,16 @@ import java.util.Optional;
  */
 public final class TvurceObce implements Tvoritelny<Obec> {
 
+    /**
+     * <b>Poznámka</b>: U této implementace nedochází k ověření názvu obce na prázdnost a unikátnost - to se musí
+     * provést před voláním této metody
+     */
     @Override
     public Optional<Obec> vytvor(@NotNull DialogovyKomponent dialog) {
         try {
             if (dialog instanceof DialogVlozeni dialogVlozeni) {
                 final int cisloObce = this.dejCeleCislo(dialogVlozeni.getTfCislo().getText());
-                final String nazevObce = this.dejNeprazdnyRetezec(dialogVlozeni.getTfNazev().getText());
+                final String nazevObce = dialogVlozeni.getTfNazev().getText();
                 final String pscObce = this.dejNeprazdnyRetezec(dialogVlozeni.getTfPSC().getText());
                 final int pocetMuzu = this.dejCeleCislo(dialogVlozeni.getTfPocetMuzu().getText());
                 final int pocetZen = this.dejCeleCislo(dialogVlozeni.getTfPocetZen().getText());

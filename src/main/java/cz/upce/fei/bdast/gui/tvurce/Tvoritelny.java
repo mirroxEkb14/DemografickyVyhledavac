@@ -3,7 +3,6 @@ package cz.upce.fei.bdast.gui.tvurce;
 import cz.upce.fei.bdast.gui.dialogy.DialogovyKomponent;
 import cz.upce.fei.bdast.vyjimky.CeleCisloException;
 import cz.upce.fei.bdast.vyjimky.PrazdnyRetezecException;
-import org.jetbrains.annotations.NotNull;
 
 import java.util.Optional;
 import java.util.function.Predicate;

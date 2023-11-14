@@ -21,7 +21,11 @@ public enum Titulek {
     LABEL_MUZE("Počet mužů: "),
     LABEL_ZENY("Počet žen: "),
     HLAVICKA_DIALOG_VLOZENI("Vytvoření Nové Obce"),
-    HLAVICKA_TITULKOVEHO_PANELU_VLOZENI("Zadávání údajů");
+    HLAVICKA_TITULKOVEHO_PANELU_VLOZENI("Zadávání údajů"),
+    HLAVICKA_DIALOGU_NALEZENI("Nalezení Obcí"),
+    HLAVICKA_TITULKOVEHO_PANELU_NALEZENI("Zadávání názvu obce"),
+    HLAVICKA_DIALOGU_ODEBIRANI("Odebírání Obcí"),
+    HLAVICKA_TITULKOVEHO_PANELU_ODEBIRANI("Zadávání názvu obce");
 
     private final String nadpis;
 

@@ -10,6 +10,8 @@ import javafx.scene.control.SelectionMode;
 import javafx.scene.text.Font;
 import org.jetbrains.annotations.NotNull;
 
+import java.util.Optional;
+
 /**
  * Toto rozhraní deklaruje základní metody pro implementaci {@link SeznamPanel} obsahující prvky binárního stromu
  */
@@ -32,10 +34,10 @@ public interface ISeznamPanel<T> {
     /**
      * Přidá novou obec do seznamu {@link ListView} a samotného stromu pomocí její agendy {@link AgendaKraj}
      *
-     * @throws SeznamPanelException Když se vyskytne výjimka během procesu vkládání prvku do bunárního stromu
-     * používáním správce tohoto stromu {@link AgendaKraj}
+     * @return {@code false}, pokud se vyskytne výjimka během procesu vkládání prvku do bunárního stromu používáním
+     * správce tohoto stromu {@link AgendaKraj}, jinak {@code true}
      */
-    void pridej(Obec obec) throws SeznamPanelException;
+    boolean pridej(Obec obec);
 
     /**
      * Obnoví obsah seznamů:
@@ -50,6 +52,41 @@ public interface ISeznamPanel<T> {
      * {@link AgendaKraj}
      */
     void obnovSeznam(IAbstrTable<String, Obec> strom) throws SeznamPanelException;
+
+    /**
+     * Ověří, zda vstupní klíč je unikátní pro aktuální obsah seznamu
+     *
+     * @param klic Klíč pro ověření na unikátnost
+     *
+     * @return {@code true}, pokud je předaný klíč unikátní, jinak {@code false}
+     */
+    boolean jeUnikatnimKlicem(String klic);
+
+    /**
+     * Nalezne prvek v rámci seznamu podle vstupního klíče
+     *
+     * @param klic Klíč, podle kterého bude probíhat vyhledávání prvku
+     *
+     * @return Nalezený prvek seznamu, čímž je instance třídy {@link Obec}
+     */
+    Optional<Obec> nalezni(String klic);
+
+    /**
+     * Vymaže předaný prvek ze seznamu. Nevrací odebranou hodnotu a nekontroluje, zda vstupní obec existuje nebo
+     * ne - musí to být zajišťěno před voláním této metody
+     *
+     * @param obec Instance obce, která bude ze seznamu odebraná
+     *
+     * @return {@code true}, pokud proces odebírání proběhl úspěšně, v případě, že správce stromu, resp. ten
+     * samý strom, vyvolá svoji vlastná výjimku, vratí {@code false}
+     */
+    boolean vymaz(Obec obec);
+
+    /**
+     * Vymaže obsah seznamu a přidá celóu hierarchii stromu do seznamu jako jeden prvek, tj. pouze jedním
+     * voláním metody {@code add(E e)}
+     */
+    void vypisStrom();
 
     /**
      * Pomocní zjišťovací metoda vrací aktuální mohutnost seznamu

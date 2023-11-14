@@ -14,7 +14,7 @@ public interface DialogovyKomponent {
     /**
      * Nastaví výchozí stav pro tlačítka dialogu, předanému v argumentu metody
      *
-     * @param dialogovyPanel Instance na {@link DialogPane}, jehož tlačítka {@link ButtonType#OK} a {@link ButtonType#CANCEL}
+     * @param dialogovyPanel Instance na {@code DialogPane}, jehož tlačítka {@link ButtonType#OK} a {@link ButtonType#CANCEL}
      *                       budou nastaveny
      *
      * @return Instance na ten samý dialogový panel {@link DialogPane}

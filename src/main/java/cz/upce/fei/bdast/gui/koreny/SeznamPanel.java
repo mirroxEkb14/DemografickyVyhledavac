@@ -1,6 +1,7 @@
 package cz.upce.fei.bdast.gui.koreny;
 
 import cz.upce.fei.bdast.agenda.AgendaKraj;
+import cz.upce.fei.bdast.agenda.IAgendaKraj;
 import cz.upce.fei.bdast.strom.ETypProhl;
 import cz.upce.fei.bdast.strom.IAbstrTable;
 import cz.upce.fei.bdast.vyjimky.AgendaKrajException;
@@ -11,6 +12,7 @@ import javafx.scene.control.ListView;
 import org.jetbrains.annotations.NotNull;
 
 import java.util.Iterator;
+import java.util.Optional;
 
 /**
  * Třída reprezentující seznamový panel. Je rozšířením {@link ListView} s dalšími funkcionalitami. Obsahuje odkaz
@@ -24,7 +26,11 @@ public final class SeznamPanel extends ListView<String> implements ISeznamPanel<
     /**
      * Deklarace a inicializace instanci na agendu obcí obsahující základní metody pro správu stromu
      */
-    private final AgendaKraj agendaKraj = AgendaKraj.getInstance();
+    private final IAgendaKraj agendaKraj = AgendaKraj.getInstance();
+    /**
+     *
+     */
+    private final ListView<String> ulozenyStav = new ListView<>();
 
 // <editor-fold defaultstate="collapsed" desc="Instance a Tovární Metoda">
     private static SeznamPanel instance;
@@ -43,12 +49,13 @@ public final class SeznamPanel extends ListView<String> implements ISeznamPanel<
     private SeznamPanel() { this.nastavSeznamPanel(this); }
 
     @Override
-    public void pridej(@NotNull Obec obec) throws SeznamPanelException {
+    public boolean pridej(@NotNull Obec obec) {
         try {
-            pridejPrvek(obec);
             agendaKraj.vloz(obec);
+            pridejPrvek(obec);
+            return true;
         } catch (AgendaKrajException ex) {
-            throw new SeznamPanelException(ChybovaZpravaSeznamu.CHYBA_PRI_VLOZENI.getZprava());
+            return false;
         }
     }
 
@@ -73,6 +80,66 @@ public final class SeznamPanel extends ListView<String> implements ISeznamPanel<
         } catch (AgendaKrajException ex) {
             throw new SeznamPanelException(ChybovaZpravaSeznamu.CHYBA_PRI_OBNOVENI.getZprava());
         }
+    }
+
+    @Override
+    public boolean jeUnikatnimKlicem(String klic) {
+        try {
+            agendaKraj.najdi(klic);
+            return false;
+        } catch (AgendaKrajException ex) {
+            return true;
+        }
+    }
+
+    @Override
+    public Optional<Obec> nalezni(String klic) {
+        try {
+            return Optional.of(agendaKraj.najdi(klic));
+        } catch (AgendaKrajException e) {
+            return Optional.empty();
+        }
+    }
+
+    @Override
+    public boolean vymaz(@NotNull Obec obec) {
+        try {
+            agendaKraj.odeber(obec.getNazev());
+            vymazPrvek(obec);
+            return true;
+        } catch (AgendaKrajException e) {
+            return false;
+        }
+    }
+
+    /**
+     * Odebere obci ze seznamu {@link ListView}
+     *
+     * @param obec Prvek, který bude odebrán
+     */
+    private void vymazPrvek(@NotNull Obec obec) {
+        this.getItems().remove(obec.toString());
+    }
+
+    @Override
+    public void vypisStrom() {
+        ulozAktualniStav();
+        this.getItems().clear();
+        this.getItems().add(agendaKraj.vypisStrom());
+    }
+
+    /**
+     *
+     */
+    private void ulozAktualniStav() {
+        ulozenyStav.getItems().addAll(this.getItems());
+    }
+
+    /**
+     *
+     */
+    private void nactiPredchoziStav() {
+       this.getItems().addAll(ulozenyStav.getItems());
     }
 
     @Override

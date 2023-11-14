@@ -603,6 +603,64 @@ public final class AbstrTable<K extends Comparable<K>, V> implements IAbstrTable
         return hledanyUzel.mohutnost;
     }
 
+    private final String PRAZDNY_RETEZEC = "";
+    private final String ODRADKOVANI = "\n";
+    private final String KOREN = " (kořen)";
+    private final String JE_VLEVO_OD = " je vlevo od ";
+    private final String JE_VPRAVO_OD = " je vpravo od ";
+
+    @Override
+    public @NotNull String vypisStrom() {
+        final StringBuilder sb = new StringBuilder();
+        vypisStromRekurzivne(koren, null, sb);
+        return sb.toString();
+    }
+
+    /**
+     * Rekurzivně vytváří textovou reprezentaci podstromu začínajícího daným uzlem
+     *
+     * <p> Popis logiky podle jednotlivých bloků kódu:
+     * <ol>
+     * <li> Ověří aktuální uzel na {@code null}
+     *      <ul>
+     *      <li> Pokud podmínka je platná, metoda se končí
+     *      </ul>
+     * <li> Přidá klíč aktuálního uzlu do textové reprezentace
+     * <li> Ověří, zda je aktuální uzel kořenem stromu
+     *      <ul>
+     *      <li> Přidá informaci o tom, zda je vlevo nebo vpravo od rodiče
+     *      </ul>
+     * <li> Pokud kořenem je
+     *      <ul>
+     *      <li> Přidá informaci o tom, že je kořenovým prvkem
+     *      </ul>
+     * <li> Přidá odřádkovaní
+     * <li> Rekurzivně zpracuje levý a pravý podstrom
+     * </ol>
+     *
+     * @param uzel Aktuální uzel, pro který se vytváří textová reprezentace
+     * @param rodic Rodič aktuálního uzlu ({@code null}, pokud je uzel kořenem)
+     * @param sb {@link StringBuilder} pro sestavení textové reprezentace
+     */
+    private void vypisStromRekurzivne(Uzel uzel, Uzel rodic, StringBuilder sb) {
+        if (uzel == null)
+            return;
+
+        sb.append(uzel.klic);
+        if (rodic != null) {
+            if (uzel == rodic.vlevo)
+                sb.append(JE_VLEVO_OD).append(rodic.klic);
+            else
+                sb.append(JE_VPRAVO_OD).append(rodic.klic);
+        } else {
+            sb.append(KOREN);
+        }
+        sb.append(ODRADKOVANI);
+
+        vypisStromRekurzivne(uzel.vlevo, uzel, sb);
+        vypisStromRekurzivne(uzel.vpravo, uzel, sb);
+    }
+
     /**
      * Porovná výsledek metody compareTo s nulou
      *

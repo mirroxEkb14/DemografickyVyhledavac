@@ -89,4 +89,22 @@ public interface IAbstrTable<K extends Comparable<K>, V> {
      * @return Mohutnost uzlu se zadaným klíčem nebo {@code 0}, pokud uzel s klíčem není nalezen
      */
     int dejMohutnost(K klic);
+
+    /**
+     * Vratí textový řetězec s celým stromem, kde je uvedeno, jaký uzel má jaké potomnky a jaký uzel je čí
+     * potomek/rodič (zda má potomky vlevo/vpravo)
+     *
+     * <p> Pokud se do stromu vloží klíče v následujícím poředí: d, c, b, a, e, f; pak výstup má podobu:
+     * <ul>
+     * <li> "d" (kořen)
+     * <li> "c" je vlevo od "d"
+     * <li> "b" je vlevo od "c"
+     * <li> "a" je vlevo od "b"
+     * <li> "e" je vlevo od "d"
+     * <li> "f" je vlevo od "e"
+     * </ul>
+     *
+     * @return Řetězec s informacemi o rodiči a potomcích
+     */
+    String vypisStrom();
 }

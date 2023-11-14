@@ -59,4 +59,11 @@ public interface IAgendaKraj {
      * @param pocet Počet obcí pro generování
      */
     void generuj(int pocet);
+
+    /**
+     * Vratí text s vnitřním uspořádání binárního stromu
+     *
+     * @return Textový řetězec s popisem struktury stromu
+     */
+    String vypisStrom();
 }

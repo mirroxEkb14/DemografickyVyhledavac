@@ -88,4 +88,6 @@ public final class AgendaKraj implements IAgendaKraj {
     public void generuj(int pocet) {
         obecGenerator.generuj(strom, pocet);
     }
+
+    public @NotNull String vypisStrom() { return strom.vypisStrom(); }
 }
