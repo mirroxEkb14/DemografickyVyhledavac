@@ -104,7 +104,18 @@ public interface IAbstrTable<K extends Comparable<K>, V> {
      * <li> "f" je vlevo od "e"
      * </ul>
      *
+     * @param typ Typ prohlížení
+     *
      * @return Řetězec s informacemi o rodiči a potomcích
      */
-    String vypisStrom();
+    String vypisStrom(ETypProhl typ);
+
+    /**
+     * Zjištění, zda strom obsahuje zadaný klíč
+     *
+     * @param klic Klíč, který se má zjistit, zda je obsažen ve stromu
+     *
+     * @return {@code true}, pokud strom obsahuje klíč, jinak {@code false}
+     */
+    boolean obsahuje(K klic);
 }

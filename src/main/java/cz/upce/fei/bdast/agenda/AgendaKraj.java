@@ -3,6 +3,8 @@ package cz.upce.fei.bdast.agenda;
 import cz.upce.fei.bdast.data.Obec;
 import cz.upce.fei.bdast.generator.Generator;
 import cz.upce.fei.bdast.generator.ObecGenerator;
+import cz.upce.fei.bdast.perzistence.IPerzistence;
+import cz.upce.fei.bdast.perzistence.ObecPerzistence;
 import cz.upce.fei.bdast.strom.AbstrTable;
 import cz.upce.fei.bdast.strom.ETypProhl;
 import cz.upce.fei.bdast.strom.IAbstrTable;
@@ -11,6 +13,7 @@ import cz.upce.fei.bdast.vyjimky.StromException;
 import cz.upce.fei.bdast.vyjimky.zpravy.ChybovaZpravaKraje;
 import org.jetbrains.annotations.NotNull;
 
+import java.io.IOException;
 import java.util.Iterator;
 
 /**
@@ -20,10 +23,11 @@ import java.util.Iterator;
  *
  * <p>Třída používá Singleton návrhový vzor, čímž zabezpečuje jedinou instanci v rámci aplikace
  */
-public final class AgendaKraj implements IAgendaKraj {
+public final class AgendaKraj implements IAgendaKraj<String, Obec> {
 
     private IAbstrTable<String, Obec> strom;
     private Generator obecGenerator;
+    private IPerzistence<String, Obec> perzistence;
 
 // <editor-fold defaultstate="collapsed" desc="Instance a Tovární Metoda">
     private static AgendaKraj instance;
@@ -45,11 +49,16 @@ public final class AgendaKraj implements IAgendaKraj {
     private void nastav() {
         this.strom = new AbstrTable<>();
         this.obecGenerator = new ObecGenerator();
+        this.perzistence = new ObecPerzistence();
     }
 
     @Override
-    public void importDat() {
-
+    public boolean importDat(String cesta) {
+        try {
+            return perzistence.nactiCsv(strom, cesta);
+        } catch (IOException ex) {
+            return false;
+        }
     }
 
     @Override
@@ -64,7 +73,7 @@ public final class AgendaKraj implements IAgendaKraj {
     @Override
     public void vloz(@NotNull Obec obec) throws AgendaKrajException {
         try {
-            strom.vloz(obec.getNazev(), obec);
+            strom.vloz(obec.getNazevObce(), obec);
         } catch (StromException ignored) {
             throw new AgendaKrajException(ChybovaZpravaKraje.NULL_KLIC.getZprava());
         }
@@ -80,8 +89,8 @@ public final class AgendaKraj implements IAgendaKraj {
     }
 
     @Override
-    public Iterator<Obec> vytvorIterator() {
-        return strom.vytvorIterator(ETypProhl.HLOUBKA);
+    public Iterator<Obec> vytvorIterator(ETypProhl typ) {
+        return strom.vytvorIterator(typ);
     }
 
     @Override
@@ -89,5 +98,24 @@ public final class AgendaKraj implements IAgendaKraj {
         obecGenerator.generuj(strom, pocet);
     }
 
-    public @NotNull String vypisStrom() { return strom.vypisStrom(); }
+    @Override
+    public @NotNull IAbstrTable<String, Obec> dejInstanceStromu() throws AgendaKrajException {
+        final IAbstrTable<String, Obec> novaInstance = new AbstrTable<>();
+        try {
+            final Iterator<Obec> iterator = strom.vytvorIterator(ETypProhl.HLOUBKA);
+            while (iterator.hasNext()) {
+                final Obec obec = iterator.next();
+                novaInstance.vloz(obec.getNazevObce(), obec);
+            }
+            return novaInstance;
+        } catch (StromException ex) {
+            throw new AgendaKrajException(ChybovaZpravaKraje.DUPLICITNI_KLIC.getZprava());
+        }
+    }
+
+    @Override
+    public void zrus() { strom.zrus(); }
+
+    @Override
+    public @NotNull String vypisStrom(ETypProhl typ) { return strom.vypisStrom(typ); }
 }

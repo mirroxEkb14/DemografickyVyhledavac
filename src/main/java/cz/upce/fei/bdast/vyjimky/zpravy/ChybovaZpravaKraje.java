@@ -7,8 +7,9 @@ package cz.upce.fei.bdast.vyjimky.zpravy;
  * použít příslušnou hodnotu z tohoto {@link Enum}u
  */
 public enum ChybovaZpravaKraje {
-    NULL_KLIC("Chyba u vstupního názvu obce."),
-    PRVEK_NENALEZEN("Chyba při hledání obce.");
+    NULL_KLIC("Chyba u vstupního názvu obce"),
+    PRVEK_NENALEZEN("Chyba při hledání obce"),
+    DUPLICITNI_KLIC("Chyba při vracení instance stromu");
 
     final String zprava;
 

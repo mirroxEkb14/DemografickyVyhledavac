@@ -25,20 +25,28 @@ public final class DialogVlozeni extends Dialog<ButtonType>
      * <li> {@link Label}: pro lepší orientaci uživatele
      * </ul>
      */
-    private final TextField tfCislo, tfNazev, tfPSC, tfPocetMuzu, tfPocetZen;
-    private final Label lCislo, lNazev, lPSC, lPocetMuzu, lPocetZen;
+    private final TextField tfCislo, tfNazevKraje, tfNazevObce, tfPSC, tfPocetMuzu, tfPocetZen;
+    private final Label lCislo, lNazevKraje, lNazevObce, lPSC, lPocetMuzu, lPocetZen;
+    /**
+     * Výchozí hodnoty pro textová pole (nápovědy)
+     */
+    private final String VYCHOZI_NAZEV_KRAJE = "Pardubicky";
+    private final String VYCHOZI_CISLO_KRAJE = "10";
+    private final String VYCHOZI_INTEGER = "1";
 
     /**
      * Konstruktor inicializuje textová pole a popisky, pak volá metodu pro nastavení dialogu
      */
     public DialogVlozeni() {
-        this.tfCislo = new TextField();
-        this.tfNazev = new TextField();
-        this.tfPSC = new TextField();
-        this.tfPocetMuzu = new TextField();
-        this.tfPocetZen = new TextField();
-        this.lCislo = new Label(Titulek.LABEL_CISLO.getNadpis());
-        this.lNazev = new Label(Titulek.LABEL_NAZEV.getNadpis());
+        this.tfCislo = new TextField(VYCHOZI_CISLO_KRAJE);
+        this.tfNazevKraje = new TextField(VYCHOZI_NAZEV_KRAJE);
+        this.tfNazevObce = new TextField();
+        this.tfPSC = new TextField(VYCHOZI_INTEGER);
+        this.tfPocetMuzu = new TextField(VYCHOZI_INTEGER);
+        this.tfPocetZen = new TextField(VYCHOZI_INTEGER);
+        this.lCislo = new Label(Titulek.LABEL_CISLO_KRAJE.getNadpis());
+        this.lNazevKraje = new Label(Titulek.LABEL_NAZEV_KRAJE.getNadpis());
+        this.lNazevObce = new Label(Titulek.LABEL_NAZEV_OBCE.getNadpis());
         this.lPSC = new Label(Titulek.LABEL_PSC.getNadpis());
         this.lPocetMuzu = new Label(Titulek.LABEL_MUZE.getNadpis());
         this.lPocetZen = new Label(Titulek.LABEL_ZENY.getNadpis());
@@ -76,21 +84,25 @@ public final class DialogVlozeni extends Dialog<ButtonType>
         final GridPane gridPane = new MrizkovyPanel();
         gridPane.add(lCislo, MrizkovyPanel.SLOUPCOVY_INDEX_PRVNI, MrizkovyPanel.RADKOVY_INDEX_PRVNI);
         gridPane.add(tfCislo, MrizkovyPanel.SLOUPCOVY_INDEX_DRUHY, MrizkovyPanel.RADKOVY_INDEX_PRVNI);
-        gridPane.add(lNazev, MrizkovyPanel.SLOUPCOVY_INDEX_PRVNI, MrizkovyPanel.RADKOVY_INDEX_DRUHY);
-        gridPane.add(tfNazev, MrizkovyPanel.SLOUPCOVY_INDEX_DRUHY, MrizkovyPanel.RADKOVY_INDEX_DRUHY);
-        gridPane.add(lPSC, MrizkovyPanel.SLOUPCOVY_INDEX_PRVNI, MrizkovyPanel.RADKOVY_INDEX_TRETI);
-        gridPane.add(tfPSC, MrizkovyPanel.SLOUPCOVY_INDEX_DRUHY, MrizkovyPanel.RADKOVY_INDEX_TRETI);
-        gridPane.add(lPocetMuzu, MrizkovyPanel.SLOUPCOVY_INDEX_PRVNI, MrizkovyPanel.RADKOVY_INDEX_CTVRTY);
-        gridPane.add(tfPocetMuzu, MrizkovyPanel.SLOUPCOVY_INDEX_DRUHY, MrizkovyPanel.RADKOVY_INDEX_CTVRTY);
-        gridPane.add(lPocetZen, MrizkovyPanel.SLOUPCOVY_INDEX_PRVNI, MrizkovyPanel.RADKOVY_INDEX_PATY);
-        gridPane.add(tfPocetZen, MrizkovyPanel.SLOUPCOVY_INDEX_DRUHY, MrizkovyPanel.RADKOVY_INDEX_PATY);
+        gridPane.add(lNazevKraje, MrizkovyPanel.SLOUPCOVY_INDEX_PRVNI, MrizkovyPanel.RADKOVY_INDEX_DRUHY);
+        gridPane.add(tfNazevKraje, MrizkovyPanel.SLOUPCOVY_INDEX_DRUHY, MrizkovyPanel.RADKOVY_INDEX_DRUHY);
+        gridPane.add(lNazevObce, MrizkovyPanel.SLOUPCOVY_INDEX_PRVNI, MrizkovyPanel.RADKOVY_INDEX_TRETI);
+        gridPane.add(tfNazevObce, MrizkovyPanel.SLOUPCOVY_INDEX_DRUHY, MrizkovyPanel.RADKOVY_INDEX_TRETI);
+        gridPane.add(lPSC, MrizkovyPanel.SLOUPCOVY_INDEX_PRVNI, MrizkovyPanel.RADKOVY_INDEX_CTVRTY);
+        gridPane.add(tfPSC, MrizkovyPanel.SLOUPCOVY_INDEX_DRUHY, MrizkovyPanel.RADKOVY_INDEX_CTVRTY);
+        gridPane.add(lPocetMuzu, MrizkovyPanel.SLOUPCOVY_INDEX_PRVNI, MrizkovyPanel.RADKOVY_INDEX_PATY);
+        gridPane.add(tfPocetMuzu, MrizkovyPanel.SLOUPCOVY_INDEX_DRUHY, MrizkovyPanel.RADKOVY_INDEX_PATY);
+        gridPane.add(lPocetZen, MrizkovyPanel.SLOUPCOVY_INDEX_PRVNI, MrizkovyPanel.RADKOVY_INDEX_SESTY);
+        gridPane.add(tfPocetZen, MrizkovyPanel.SLOUPCOVY_INDEX_DRUHY, MrizkovyPanel.RADKOVY_INDEX_SESTY);
         return gridPane;
     }
 
 // <editor-fold defaultstate="collapsed" desc="Gettery">
     public TextField getTfCislo() { return tfCislo; }
 
-    public TextField getTfNazev() { return tfNazev; }
+    public TextField getTfNazevKraje() { return tfNazevKraje; }
+
+    public TextField getTfNazevObce() { return tfNazevObce; }
 
     public TextField getTfPSC() { return tfPSC; }
 

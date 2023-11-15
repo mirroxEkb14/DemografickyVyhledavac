@@ -70,6 +70,7 @@ public final class AbstrTable<K extends Comparable<K>, V> implements IAbstrTable
     @Override
     public boolean jePrazdny() { return koren == null; }
 
+// <editor-fold defaultstate="collapsed" desc="Metoda: V najdi(K klic)">
     /**
      * Popis logiky:
      * <ol>
@@ -135,7 +136,9 @@ public final class AbstrTable<K extends Comparable<K>, V> implements IAbstrTable
 
         return null;
     }
+// </editor-fold>
 
+// <editor-fold defaultstate="collapsed" desc="Metoda: void vloz(K klic, V hodnota)">
     /**
      * Popis logiký jednotlivých bloků kódu:
      * <ol>
@@ -244,7 +247,9 @@ public final class AbstrTable<K extends Comparable<K>, V> implements IAbstrTable
             novyUzel = novyUzel.rodic;
         }
     }
+// </editor-fold>
 
+// <editor-fold defaultstate="collapsed" desc="Metoda: V odeber(K klic)">
     /**
      * Popis logiký jednotlivých bloků kódu:
      * <ol>
@@ -413,6 +418,7 @@ public final class AbstrTable<K extends Comparable<K>, V> implements IAbstrTable
             uzel = uzel.rodic;
         }
     }
+// </editor-fold>
 
 // <editor-fold defaultstate="collapsed" desc="Pomocné zjišťovací metody typu Boolean pro: V odeber(K klic)">
     private boolean jsouObaPotomky(@NotNull Uzel uzel) {
@@ -444,7 +450,7 @@ public final class AbstrTable<K extends Comparable<K>, V> implements IAbstrTable
     }
 // </editor-fold>
 
-// <editor-fold defaultstate="collapsed" desc="Pomocné metody typu Void pro změnu mohutnosti uzlů">
+// <editor-fold defaultstate="collapsed" desc="Pomocné metody změnu mohutnosti uzlů - zvys()/sniz()">
     private void zvysMohutnost(@NotNull Uzel uzel) { uzel.mohutnost++; }
 
     private void snizMohutnost(@NotNull Uzel uzel) { uzel.mohutnost--; }
@@ -463,6 +469,7 @@ public final class AbstrTable<K extends Comparable<K>, V> implements IAbstrTable
         };
     }
 
+// <editor-fold defaultstate="collapsed" desc="Iterátor do šířky">
     /**
      * Iterátor pro průchod stromem do šířky
      *
@@ -520,7 +527,9 @@ public final class AbstrTable<K extends Comparable<K>, V> implements IAbstrTable
             }
         }
     }
+// </editor-fold>
 
+// <editor-fold defaultstate="collapsed" desc="Iterátor do hloubky typu in-order">
     /**
      * Iterátor pro průchod stromem do hloubky (in-order)
      *
@@ -594,6 +603,7 @@ public final class AbstrTable<K extends Comparable<K>, V> implements IAbstrTable
             }
         }
     }
+// </editor-fold>
 
     @Override
     public int dejMohutnost(K klic) {
@@ -603,14 +613,14 @@ public final class AbstrTable<K extends Comparable<K>, V> implements IAbstrTable
         return hledanyUzel.mohutnost;
     }
 
-    private final String PRAZDNY_RETEZEC = "";
+// <editor-fold defaultstate="collapsed" desc="Výpis stromu">
     private final String ODRADKOVANI = "\n";
     private final String KOREN = " (kořen)";
     private final String JE_VLEVO_OD = " je vlevo od ";
     private final String JE_VPRAVO_OD = " je vpravo od ";
 
     @Override
-    public @NotNull String vypisStrom() {
+    public @NotNull String vypisStrom(ETypProhl typ) {
         final StringBuilder sb = new StringBuilder();
         vypisStromRekurzivne(koren, null, sb);
         return sb.toString();
@@ -660,7 +670,14 @@ public final class AbstrTable<K extends Comparable<K>, V> implements IAbstrTable
         vypisStromRekurzivne(uzel.vlevo, uzel, sb);
         vypisStromRekurzivne(uzel.vpravo, uzel, sb);
     }
+// </editor-fold>
 
+    @Override
+    public boolean obsahuje(K klic) {
+        return najdiRekurzivne(koren, klic) != null;
+    }
+
+// <editor-fold defaultstate="collapsed" desc="Metody porovnávání klíčů">
     /**
      * Porovná výsledek metody compareTo s nulou
      *
@@ -695,7 +712,9 @@ public final class AbstrTable<K extends Comparable<K>, V> implements IAbstrTable
      * @return {@code true}, pokud výsledek je záporný, jinak {@code false}
      */
     private boolean jeZaporne(@NotNull K obj1, K obj2) { return obj1.compareTo(obj2) < NULTA_HODNOTA; }
+// </editor-fold>
 
+// <editor-fold defaultstate="collapsed" desc="Metody ošetřování typu pozadat()">
     /**
      * Ověřuje, zda kořen stromu není prázdný {@code null}
      *
@@ -717,4 +736,5 @@ public final class AbstrTable<K extends Comparable<K>, V> implements IAbstrTable
         if (klic == null)
             throw new StromException(ChybovaZpravaStromu.NULL_KLIC.getZprava());
     }
+// </editor-fold>
 }

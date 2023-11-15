@@ -1,0 +1,13 @@
+           e
+         /   \
+        c     f
+       / \     \
+      a   d     h
+       \       / \
+        b     g   i
+
+1) posloupnost přidání: e, c, d, a, b, f, h, g, i
+
+2) posloupnost vypsání do šířky:
+
+3) posloupnost vypsání do hloubky (in-order):

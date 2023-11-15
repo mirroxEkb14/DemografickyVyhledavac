@@ -10,8 +10,16 @@ public interface Generator {
 
     /**
      * Maximální hodnota pro číslo kraje při generování náhodných dat
+     *
+     * <p> Krajů je {@code 14}, ale při generování se používá metoda {@link java.util.Random#nextInt(int)}, které
+     * generuje náhodné číslo od {@code 1} (včetně) po {@code int} (vyloučeno)
      */
-    int CISLO_KRAJE_MAX = 100;
+    int CISLO_KRAJE_MAX = 15;
+    int CISLO_KRAJE_MIN = 1;
+    /**
+     * Název obce má podobu "ObecX," kde x - číslo v rozsahu 1 až 999
+     */
+    int CISLO_NAZVU_OBCE_MAX = 1000;
     /**
      * Maximální hodnota pro počet lidí
      */

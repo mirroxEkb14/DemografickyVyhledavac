@@ -1,12 +1,10 @@
 package cz.upce.fei.bdast.generator;
 
 import cz.upce.fei.bdast.data.Obec;
-import cz.upce.fei.bdast.strom.ETypProhl;
 import cz.upce.fei.bdast.strom.IAbstrTable;
 import cz.upce.fei.bdast.vyjimky.StromException;
 import org.jetbrains.annotations.NotNull;
 
-import java.util.Iterator;
 import java.util.Random;
 
 /**
@@ -19,76 +17,89 @@ public final class ObecGenerator implements Generator {
 
     private final int NULTA_HODNOTA = 0;
 
+    private final String[] KRAJE = {"Hlavni mesto Praha", "Jihocesky", "Jihomoravsky", "Karlovarsky", "Kraj Vysocina",
+            "Kralovehradecky", "Liberecky", "Moravskoslezsky", "Olomoucky", "Pardubicky", "Plzensky", "Stredocesky",
+            "Ustecky", "Zlinsky"};
+
     @Override
     public void generuj(@NotNull IAbstrTable<String, Obec> strom, int pocet) {
         do {
-            final int cisloKraje = generujNahodneCisloObce(strom);
-            final String nazev = generujNahodnyNazev(cisloKraje);
+            final int cisloKraje = generujNahodneCisloKraje();
+            final String nazevKraje = generujNazevKraje(cisloKraje);
+            final String nazevObce = generujUnikatniNazevObce(strom);
             final String psc = generujNahodnePsc(cisloKraje);
             final int pocetMuzu = generujNahodnyPocet();
             final int pocetZen = generujNahodnyPocet();
             final int celkem = pocetMuzu + pocetZen;
 
             final Obec obec = new Obec(cisloKraje,
-                    nazev,
+                    nazevKraje,
+                    nazevObce,
                     psc,
                     pocetMuzu,
                     pocetZen,
                     celkem);
             try {
-                strom.vloz(nazev, obec);
+                strom.vloz(nazevObce, obec);
             } catch (StromException ignored) {}
-        } while (--pocet > NULTA_HODNOTA);
+        } while (--pocet != NULTA_HODNOTA);
     }
 
     /**
-     * Generuje náhodné číslo obce
-     *
-     * @param strom Strom pro ověření opakování vygenerovaného čísla
+     * Generuje náhodné číslo kraje
      *
      * @return Náhodně vygenerované čísla
      */
-    private int generujNahodneCisloObce(@NotNull IAbstrTable<String, Obec> strom) {
-        int cisloObce;
-        boolean jeUnikatni;
-        do {
-            jeUnikatni = true;
-            cisloObce = random.nextInt(Generator.CISLO_KRAJE_MAX);
-
-            final Iterator<Obec> iterator = strom.vytvorIterator(ETypProhl.HLOUBKA);
-            while (iterator.hasNext()) {
-                final Obec obec = iterator.next();
-                if (obec.getCisloKraje() == cisloObce) {
-                    jeUnikatni = false;
-                    break;
-                }
-            }
-        } while (!jeUnikatni);
-        return cisloObce;
+    private int generujNahodneCisloKraje() {
+        return random.nextInt(Generator.CISLO_KRAJE_MIN, Generator.CISLO_KRAJE_MAX);
     }
 
     /**
-     * Vytvořte název "ObecX" s použitím náhodného generovaného unikátního čísla obce
+     * Vratí název kraje podle jeho čísla
      *
-     * @param unikatniCisloObce Unikátní číslo vygenerované metodou {@link ObecGenerator#generujNahodneCisloObce(IAbstrTable)}
+     * @param cisloKraje Číslo vygenerované metodou {@link ObecGenerator#generujNahodneCisloKraje()}
      *
-     * @return Řetězec podle předpisu s unikátním císlem obce
+     * @return Řetězec podle předpisu s císlem kraje
      */
-    private @NotNull String generujNahodnyNazev(int unikatniCisloObce) {
-        return Generator.NAZEV_OBCE_PREDPIS + unikatniCisloObce;
+    private @NotNull String generujNazevKraje(int cisloKraje) {
+        return KRAJE[--cisloKraje];
+    }
+
+    /**
+     * Generuje unikátní název obce s použitím náhodného generovaného čísla kraje
+     *
+     * @param strom Strom, ve kterém se kontroluje unikátnost názvu obce
+     *
+     * @return Unikátní řetězec podle předpisu s císlem kraje
+     */
+    private @NotNull String generujUnikatniNazevObce(@NotNull IAbstrTable<String, Obec> strom) {
+        String nazevObce;
+        do {
+            nazevObce = generujNahodnyNazevObce();
+        } while (strom.obsahuje(nazevObce));
+        return nazevObce;
+    }
+
+    /**
+     * Vytvoří název "ObecX" s použitím náhodného generovaného čísla kraje
+     *
+     * @return Řetězec podle předpisu s císlem kraje
+     */
+    private @NotNull String generujNahodnyNazevObce() {
+        return Generator.NAZEV_OBCE_PREDPIS + random.nextInt(Generator.CISLO_NAZVU_OBCE_MAX);
     }
 
     /**
      * Generuje náhodné PSC
      *
-     * @param unikatniCisloObce Unikátní číslo vygenerované pomocí {@link ObecGenerator#generujNahodneCisloObce(IAbstrTable)}
+     * @param cisloKraje Číslo vygenerované pomocí {@link ObecGenerator#generujNahodneCisloKraje()}
      *
-     * @return Řetězec podle předpisu s unikátními císly obce reprezentující její PSC
+     * @return Řetězec podle předpisu s císly kraje reprezentující její PSC
      */
-    private @NotNull String generujNahodnePsc(int unikatniCisloObce) {
+    private @NotNull String generujNahodnePsc(int cisloKraje) {
         return Generator.PSC_PREDPIS.replaceAll(
                 Generator.NAHRADNY_BIT,
-                String.valueOf(unikatniCisloObce));
+                String.valueOf(cisloKraje));
     }
 
     /**

@@ -17,8 +17,9 @@ public enum Titulek {
     BTN_ZRUS("Zruš"),
     TLACITKO_FAJN("Fajn"),
     TLACITKO_ZRUSIT("Zrušit"),
-    LABEL_CISLO("Číslo obce: "),
-    LABEL_NAZEV("Název obce: "),
+    LABEL_CISLO_KRAJE("Číslo kraje: "),
+    LABEL_NAZEV_KRAJE("Název kraje: "),
+    LABEL_NAZEV_OBCE("Název obce: "),
     LABEL_PSC("PSČ obce: "),
     LABEL_MUZE("Počet mužů: "),
     LABEL_ZENY("Počet žen: "),
@@ -27,7 +28,15 @@ public enum Titulek {
     HLAVICKA_DIALOGU_NALEZENI("Nalezení Obcí"),
     HLAVICKA_TITULKOVEHO_PANELU_NALEZENI("Zadávání názvu obce"),
     HLAVICKA_DIALOGU_ODEBIRANI("Odebírání Obcí"),
-    HLAVICKA_TITULKOVEHO_PANELU_ODEBIRANI("Zadávání názvu obce");
+    HLAVICKA_TITULKOVEHO_PANELU_ODEBIRANI("Zadávání názvu obce"),
+    KOMPONENT_PRIKAZY("Příkazy"),
+    BTN_GENERUJ("Generuj"),
+    CB_NACTENI("Načtení"),
+    CB_VZOR("vzor.csv"),
+    CB_KRAJE("kraje.csv"),
+    LABEL_POCET_PRVKU("Počet: "),
+    HLAVICKA_DIALOGU_GENERATORU("Generátor Obcí"),
+    HLAVICKA_TITULKOVEHO_PANELU_GENERATORU("Zadávání počtu obcí");
 
     private final String nadpis;
 

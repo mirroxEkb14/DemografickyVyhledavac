@@ -12,7 +12,8 @@ public final class Obec {
      * Sada privátních tribubů
      */
     private final int cisloKraje;
-    private final String nazev;
+    private final String nazevKraje;
+    private final String nazevObce;
     private final String psc;
     private final int pocetMuzu;
     private final int pocetZen;
@@ -22,13 +23,15 @@ public final class Obec {
      * Konstruktor inicializuje statistická data obce
      */
     public Obec(int cisloKraje,
-                String nazev,
+                String nazevKraje,
+                String nazevObce,
                 String psc,
                 int pocetMuzu,
                 int pocetZen,
                 int celkem) {
         this.cisloKraje = cisloKraje;
-        this.nazev = nazev;
+        this.nazevKraje = nazevKraje;
+        this.nazevObce = nazevObce;
         this.psc = psc;
         this.pocetMuzu = pocetMuzu;
         this.pocetZen = pocetZen;
@@ -39,7 +42,8 @@ public final class Obec {
     public @NotNull String toString() {
         return "Obec{" +
                 "cisloKraje=" + cisloKraje +
-                ", nazev='" + nazev + '\'' +
+                ", nazevKraje='" + nazevKraje + '\'' +
+                ", nazevObce='" + nazevObce + '\'' +
                 ", psc='" + psc + '\'' +
                 ", pocetMuzu=" + pocetMuzu +
                 ", pocetZen=" + pocetZen +
@@ -55,7 +59,9 @@ public final class Obec {
 // <editor-fold defaultstate="collapsed" desc="Gettery">
     public int getCisloKraje() { return cisloKraje; }
 
-    public String getNazev() { return nazev; }
+    public String getNazevKraje() { return nazevKraje; }
+
+    public String getNazevObce() { return nazevObce; }
 
     public String getPsc() { return psc; }
 

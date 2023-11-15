@@ -11,6 +11,7 @@ import cz.upce.fei.bdast.gui.kontejnery.TitulkovyPanel;
 import cz.upce.fei.bdast.gui.kontejnery.Tlacitko;
 import cz.upce.fei.bdast.gui.koreny.SeznamPanel;
 import cz.upce.fei.bdast.gui.tvurce.TvurceObce;
+import cz.upce.fei.bdast.strom.ETypProhl;
 import cz.upce.fei.bdast.vyjimky.zpravy.ZpravaLogu;
 import javafx.scene.control.Button;
 import javafx.scene.control.ButtonType;
@@ -38,6 +39,33 @@ public final class KomponentStrom extends TitulkovyPanel {
      */
     private final ChoiceBox<String> iteratorCb = new ChoiceBox<>();
     /**
+     * Definice funkcionálního rozhraní {@link Consumer} pro vytvoření obsahu výběrového pole {@link ChoiceBox}:
+     * <ul>
+     * <li> Vyčištění a aktualizace položek
+     *      <ul>
+     *      <li> <b>iteratorCb.getItems().clear()</b>
+     *      <li> <b>iteratorCb.getItems().addAll()</b>
+     *      </ul>
+     * <li> Nastavení preferované šířky
+     *      <ul>
+     *      <li> <b>iiteratorCb.setPrefWidth()</b>
+     *      </ul>
+     * <li> Nastavení výběru na první položku a přidání události pro reakci na výběr
+     *      <ul>
+     *      <li> <b>iteratorCb.getSelectionModel().select()</b>
+     *      <li> <b>iteratorCb.setOnAction()</b>
+     *      </ul>
+     * </ul>
+     */
+    final Consumer<String> tvurceCbIteratoru = t -> {
+        this.iteratorCb.getItems().clear();
+        this.iteratorCb.getItems().addAll(
+                Titulek.CB_ITERATOR.getNadpis(), t);
+        this.iteratorCb.setPrefWidth(PREFEROVANA_SIRKA_POLE);
+        this.iteratorCb.getSelectionModel().select(Titulek.CB_ITERATOR.getNadpis());
+        this.iteratorCb.setOnAction(actionEvent -> nastavUdalostIterace());
+    };
+    /**
      * Deklarace a inicializace instanci na {@link SeznamPanel}
      */
     private final SeznamPanel seznamPanel = SeznamPanel.getInstance();
@@ -52,6 +80,7 @@ public final class KomponentStrom extends TitulkovyPanel {
     }
 // </editor-fold>
 
+// <editor-fold defaultstate="collapsed" desc="Nastavení třídy">
     /**
      * Privátní konstruktor inicializující tlačítka a nastavující události
      */
@@ -67,10 +96,9 @@ public final class KomponentStrom extends TitulkovyPanel {
         this.odeberBtn.setDisable(true);
         this.odeberBtn.setOnAction(actionEvent -> nastavUdalostOdebirani());
 
+        tvurceCbIteratoru.accept(
+                Titulek.CB_ITERUJ.getNadpis());
         this.iteratorCb.setDisable(true);
-        nastavVyberovePole();
-        nastavVychoziTitulekIteratoru();
-        this.iteratorCb.setOnAction(actionEvent -> nastavUdalostIterace());
 
         this.prazdnostBtn = new Tlacitko(Titulek.BTN_PRAZDNOST.getNadpis());
         this.prazdnostBtn.setDisable(true);
@@ -105,38 +133,6 @@ public final class KomponentStrom extends TitulkovyPanel {
         gridPane.add(prazdnostBtn, MrizkovyPanel.SLOUPCOVY_INDEX_PRVNI, MrizkovyPanel.RADKOVY_INDEX_TRETI);
         gridPane.add(zrusBtn, MrizkovyPanel.SLOUPCOVY_INDEX_DRUHY, MrizkovyPanel.RADKOVY_INDEX_TRETI);
         return gridPane;
-    }
-
-// <editor-fold defaultstate="collapsed" desc="Nastavení Výběrového Pole Iterátoru">
-    private static final double PREFEROVANA_SIRKA_POLE = 100.0;
-
-    /**
-     * Nastaví chýchozí stav pro {@link ChoiceBox} iterátoru s pouze jednou variantou:
-     * <ol>
-     * <li> {@link Titulek#CB_ITERUJ}: Vypíše vnitřní hierarchii binárního stromu
-     * </ol>
-     */
-    private void nastavVyberovePole() {
-        iteratorCb.getItems().clear();
-        iteratorCb.getItems().addAll(
-                Titulek.CB_ITERATOR.getNadpis(),
-                Titulek.CB_ITERUJ.getNadpis());
-        iteratorCb.setPrefWidth(PREFEROVANA_SIRKA_POLE);
-    }
-
-    /**
-     * Nastaví chýchozí stav pro {@link ChoiceBox} iterátoru s pouze jednou variantou:
-     * <ol>
-     * <li> {@link Titulek#CB_VRAT}: Vratí stav seznamu před zobrazováním vnitřní struktury stromu
-     * </ol>
-     */
-    private void nastavPouzeVrat() {
-        iteratorCb.getItems().clear();
-        iteratorCb.getItems().addAll(
-                Titulek.CB_ITERATOR.getNadpis(),
-                Titulek.CB_VRAT.getNadpis());
-        iteratorCb.setPrefWidth(PREFEROVANA_SIRKA_POLE);
-        nastavVychoziTitulekIteratoru();
     }
 // </editor-fold>
 
@@ -176,7 +172,11 @@ public final class KomponentStrom extends TitulkovyPanel {
         final DialogVlozeni dialog = new DialogVlozeni();
         final Optional<ButtonType> odpoved = dialog.showAndWait();
         if (odpoved.isPresent() && dialog.jeTlacitkoOk(odpoved.get())) {
-            final String klic = dialog.getTfNazev().getText();
+            final String klic = dialog.getTfNazevObce().getText();
+            if (klic.isEmpty()) {
+                ErrorAlert.nahlasErrorLog(ZpravaLogu.LOG_TVORENI_PRAZDNY_KLIC.getZprava());
+                return;
+            }
             if (seznamPanel.jeUnikatnimKlicem(klic)) {
                 new TvurceObce().vytvor(dialog)
                         .ifPresentOrElse(
@@ -238,7 +238,7 @@ public final class KomponentStrom extends TitulkovyPanel {
                                            Consumer<Obec> akce) {
         final Optional<ButtonType> odpoved = dialog.showAndWait();
         if (odpoved.isPresent() && dialog.jeTlacitkoOk(odpoved.get())) {
-            final String klic = dialog.getTfNazev().getText();
+            final String klic = dialog.getTfNazevObce().getText();
             final Optional<Obec> nalezenaObec = seznamPanel.nalezni(klic);
             nalezenaObec.ifPresentOrElse(
                     akce,
@@ -268,19 +268,22 @@ public final class KomponentStrom extends TitulkovyPanel {
     private void nastavUdalostIterace() {
         final String zvolenaAkce = iteratorCb.getSelectionModel().getSelectedItem();
         if (Titulek.CB_ITERUJ.getNadpis().equalsIgnoreCase(zvolenaAkce)) {
-            seznamPanel.vypisStrom();
+            seznamPanel.vypisStrom(ETypProhl.HLOUBKA);
             obnovTlacitkaProIteruj();
             return;
         }
         if (Titulek.CB_VRAT.getNadpis().equalsIgnoreCase(zvolenaAkce)) {
             seznamPanel.schovejStrom();
             obnovTlacitkaProVrat();
-            nastavVychoziTitulekIteratoru();
+            this.iteratorCb.getSelectionModel().select(Titulek.CB_ITERATOR.getNadpis());
         }
     }
 
     /**
      * Nastaví veškerá tlačítka na "vypnuto", když uživatel zvolí {@link Titulek#CB_ITERUJ}
+     *
+     * <p> Po stisknutí tlačítka {@link Titulek#CB_ITERUJ} tato položka se vysmaže a budou teď pouze dvě:
+     * {@link Titulek#CB_ITERATOR} a {@link Titulek#CB_VRAT}
      */
     private void obnovTlacitkaProIteruj() {
         vypniBtnVloz();
@@ -288,12 +291,18 @@ public final class KomponentStrom extends TitulkovyPanel {
         vypniBtnOdeber();
         vypniBtnPrazdnost();
         vypniBtnZrus();
+        KomponentPrikazy.getInstance().vypniBtnGeneruj();
+        KomponentPrikazy.getInstance().vypniBtnNacti();
 
-        nastavPouzeVrat();
+        tvurceCbIteratoru.accept(
+                Titulek.CB_VRAT.getNadpis());
     }
 
     /**
      * Nastaví veškerá tlačítka na "zapnuto", když uživatel zvolí {@link Titulek#CB_VRAT}
+     *
+     * <p> Po stisknutí tlačítka {@link Titulek#CB_VRAT} tato položka se vysmaže a budou teď pouze dvě:
+     * {@link Titulek#CB_ITERATOR} a {@link Titulek#CB_ITERUJ}
      */
     private void obnovTlacitkaProVrat() {
         zapniBtnVloz();
@@ -301,15 +310,11 @@ public final class KomponentStrom extends TitulkovyPanel {
         zapniBtnOdeber();
         zapniBtnPrazdnost();
         zapniBtnZrus();
+        KomponentPrikazy.getInstance().zapniBtnGeneruj();
+        KomponentPrikazy.getInstance().zapniBtnNacti();
 
-        nastavVyberovePole();
-    }
-
-    /**
-     * Nastaví výchozí titulek pro výběrové pole, které se zobrazuje uživateli
-     */
-    private void nastavVychoziTitulekIteratoru() {
-        iteratorCb.getSelectionModel().select(Titulek.CB_ITERATOR.getNadpis());
+        tvurceCbIteratoru.accept(
+                Titulek.CB_ITERUJ.getNadpis());
     }
 // </editor-fold>
 
@@ -340,43 +345,38 @@ public final class KomponentStrom extends TitulkovyPanel {
 
         vypniBtnNajdi();
         vypniBtnOdeber();
+        vypniBtnIteruj();
         vypniBtnPrazdnost();
         vypniBtnZrus();
     }
 // </editor-fold>
 
-// <editor-fold defaultstate="collapsed" desc="Zjišťovací metody o stavu tlačítek">
-    private boolean jeVypnutoBtnVloz() { return vlozBtn.isDisabled(); }
-    private boolean jeVypnutoBtnNajdi() { return najdiBtn.isDisabled(); }
-    private boolean jeVypnutoBtnOdeber() { return odeberBtn.isDisabled(); }
-    private boolean jeVypnutoBtnIteruj() { return iteratorCb.isDisabled(); }
-    private boolean jeVypnutoBtnPrazdnost() { return prazdnostBtn.isDisabled(); }
-    private boolean jeVypnutoBtnZrus() { return zrusBtn.isDisabled(); }
+// <editor-fold defaultstate="collapsed" desc="Veřekné zjišťovací metody o stavu tlačítek">
+    public boolean jeVypnutoBtnVloz() { return vlozBtn.isDisabled(); }
+    public boolean jeVypnutoBtnNajdi() { return najdiBtn.isDisabled(); }
+    public boolean jeVypnutoBtnOdeber() { return odeberBtn.isDisabled(); }
+    public boolean jeVypnutoBtnIteruj() { return iteratorCb.isDisabled(); }
+    public boolean jeVypnutoBtnPrazdnost() { return prazdnostBtn.isDisabled(); }
+    public boolean jeVypnutoBtnZrus() { return zrusBtn.isDisabled(); }
 // </editor-fold>
 
-// <editor-fold defaultstate="collapsed" desc="Přepínače">
-    private void zapniBtnVloz() { vlozBtn.setDisable(false); }
+// <editor-fold defaultstate="collapsed" desc="Veřejné přepínače">
+    public void zapniBtnVloz() { vlozBtn.setDisable(false); }
+    public void vypniBtnVloz() { vlozBtn.setDisable(true); }
 
-    private void vypniBtnVloz() { vlozBtn.setDisable(true); }
+    public void zapniBtnNajdi() { najdiBtn.setDisable(false); }
+    public void vypniBtnNajdi() { najdiBtn.setDisable(true); }
 
-    private void zapniBtnNajdi() { najdiBtn.setDisable(false); }
+    public void zapniBtnOdeber() { odeberBtn.setDisable(false); }
+    public void vypniBtnOdeber() { odeberBtn.setDisable(true); }
 
-    private void vypniBtnNajdi() { najdiBtn.setDisable(true); }
+    public void zapniBtnIteruj() { iteratorCb.setDisable(false); }
+    public void vypniBtnIteruj() { iteratorCb.setDisable(true); }
 
-    private void zapniBtnOdeber() { odeberBtn.setDisable(false); }
+    public void zapniBtnPrazdnost() { prazdnostBtn.setDisable(false); }
+    public void vypniBtnPrazdnost() { prazdnostBtn.setDisable(true); }
 
-    private void vypniBtnOdeber() { odeberBtn.setDisable(true); }
-
-    private void zapniBtnIteruj() { iteratorCb.setDisable(false); }
-
-    private void vypniBtnIteruj() { iteratorCb.setDisable(true); }
-
-    private void zapniBtnPrazdnost() { prazdnostBtn.setDisable(false); }
-
-    private void vypniBtnPrazdnost() { prazdnostBtn.setDisable(true); }
-
-    private void zapniBtnZrus() { zrusBtn.setDisable(false); }
-
-    private void vypniBtnZrus() { zrusBtn.setDisable(true); }
+    public void zapniBtnZrus() { zrusBtn.setDisable(false); }
+    public void vypniBtnZrus() { zrusBtn.setDisable(true); }
 // </editor-fold>
 }

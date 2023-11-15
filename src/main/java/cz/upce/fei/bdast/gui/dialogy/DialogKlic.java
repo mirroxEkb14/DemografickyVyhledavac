@@ -25,8 +25,8 @@ public class DialogKlic extends Dialog<ButtonType>
     /**
      * Deklarace tlačítek a labelů
      */
-    private final TextField tfNazev;
-    private final Label lNazev;
+    private final TextField tfNazevObce;
+    private final Label lNazevObce;
     /**
      * Hodnoty nadpisů v rámci dialogu
      */
@@ -38,8 +38,8 @@ public class DialogKlic extends Dialog<ButtonType>
      */
     public DialogKlic(String hlavickaDialogu,
                       String hlavickaTitulkovehoPanelu) {
-        this.tfNazev = new TextField();
-        this.lNazev = new Label(Titulek.LABEL_NAZEV.getNadpis());
+        this.tfNazevObce = new TextField();
+        this.lNazevObce = new Label(Titulek.LABEL_NAZEV_OBCE.getNadpis());
 
         this.hlavickaDialogu = hlavickaDialogu;
         this.hlavickaTitulkovehoPanelu = hlavickaTitulkovehoPanelu;
@@ -75,12 +75,12 @@ public class DialogKlic extends Dialog<ButtonType>
      */
     private @NotNull GridPane dejGridPane() {
         final GridPane gridPane = new MrizkovyPanel();
-        gridPane.add(lNazev, MrizkovyPanel.SLOUPCOVY_INDEX_PRVNI, MrizkovyPanel.RADKOVY_INDEX_PRVNI);
-        gridPane.add(tfNazev, MrizkovyPanel.SLOUPCOVY_INDEX_DRUHY, MrizkovyPanel.RADKOVY_INDEX_PRVNI);
+        gridPane.add(lNazevObce, MrizkovyPanel.SLOUPCOVY_INDEX_PRVNI, MrizkovyPanel.RADKOVY_INDEX_PRVNI);
+        gridPane.add(tfNazevObce, MrizkovyPanel.SLOUPCOVY_INDEX_DRUHY, MrizkovyPanel.RADKOVY_INDEX_PRVNI);
         return gridPane;
     }
 
 // <editor-fold defaultstate="collapsed" desc="Gettery">
-    public TextField getTfNazev() { return tfNazev; }
+    public TextField getTfNazevObce() { return tfNazevObce; }
 // </editor-fold>
 }

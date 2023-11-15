@@ -37,6 +37,7 @@ public class MrizkovyPanel extends GridPane {
     public static final int RADKOVY_INDEX_TRETI = 2;
     public static final int RADKOVY_INDEX_CTVRTY = 3;
     public static final int RADKOVY_INDEX_PATY = 4;
+    public static final int RADKOVY_INDEX_SESTY = 5;
 // </editor-fold>
 
     /**

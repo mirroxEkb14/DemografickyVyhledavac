@@ -1,5 +1,6 @@
 package cz.upce.fei.bdast.gui.koreny;
 
+import cz.upce.fei.bdast.gui.komponenty.KomponentPrikazy;
 import cz.upce.fei.bdast.gui.komponenty.KomponentStrom;
 import javafx.scene.layout.VBox;
 
@@ -32,6 +33,8 @@ public final class PrikazPanel extends VBox {
      * Nastavuje vzhled a chování panelu
      */
     private void nastavPrikazPanel() {
-        this.getChildren().add(KomponentStrom.getInstance());
+        this.getChildren().addAll(
+                KomponentStrom.getInstance(),
+                KomponentPrikazy.getInstance());
     }
 }

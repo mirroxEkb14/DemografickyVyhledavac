@@ -1,19 +1,29 @@
 package cz.upce.fei.bdast.agenda;
 
 import cz.upce.fei.bdast.data.Obec;
+import cz.upce.fei.bdast.strom.ETypProhl;
+import cz.upce.fei.bdast.strom.IAbstrTable;
 import cz.upce.fei.bdast.vyjimky.AgendaKrajException;
+import cz.upce.fei.bdast.vyjimky.StromException;
 
 import java.util.Iterator;
 
 /**
  * Toto rozhraní slouží k abstrakci funkcionalit pro práci s agendou kraje
+ *
+ * @param <K> Klíč (název obce typu {@link String})
+ * @param <V> Hodnota (instance {@link Obec})
  */
-public interface IAgendaKraj {
+public interface IAgendaKraj<K extends Comparable<K>, V> {
 
     /**
      * Provede import dat z textového souboru
+     *
+     * @param cesta Cesta do .csv souboru
+     *
+     * @return {@code true}, pokud nečtení proběhlo úspěšně, v případě vyhození výjinky - {@code false}
      */
-    void importDat();
+    boolean importDat(String cesta);
 
     /**
      * Vyhledání obce
@@ -49,9 +59,11 @@ public interface IAgendaKraj {
     /**
      * Vrací iterátor tabulky
      *
+     * @param typ Typ prohlížení
+     *
      * @return {@link Iterator} buď s hledáním do šířky anebo do hloubky
      */
-    Iterator<Obec> vytvorIterator();
+    Iterator<Obec> vytvorIterator(ETypProhl typ);
 
     /**
      * Umožnuje generovat jednotlivé obce
@@ -61,9 +73,24 @@ public interface IAgendaKraj {
     void generuj(int pocet);
 
     /**
-     * Vratí text s vnitřním uspořádání binárního stromu
+     * Vratí nově vytvořenou instanci stromu se stejným obsahem
+     *
+     * @return Nová instance binárního vyhledávacího stromu
+     *
+     * @throws AgendaKrajException Když se vyhodí výjimka při kopirování obsahu výchozích stromu, tj. při
+     * vkládání prvků - {@link StromException}
+     */
+    IAbstrTable<K, V> dejInstanceStromu() throws AgendaKrajException;
+
+    /**
+     * Zruší celý strom
+     */
+    void zrus();
+
+    /**
+     * Vratí text s vnitřním uspořádání binárního stromu podle zvoleného typu prohlížení
      *
      * @return Textový řetězec s popisem struktury stromu
      */
-    String vypisStrom();
+    String vypisStrom(ETypProhl typ);
 }

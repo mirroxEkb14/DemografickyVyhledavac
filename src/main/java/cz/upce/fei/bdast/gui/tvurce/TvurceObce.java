@@ -22,15 +22,17 @@ public final class TvurceObce implements Tvoritelny<Obec> {
     public Optional<Obec> vytvor(@NotNull DialogovyKomponent dialog) {
         try {
             if (dialog instanceof DialogVlozeni dialogVlozeni) {
-                final int cisloObce = this.dejCeleCislo(dialogVlozeni.getTfCislo().getText());
-                final String nazevObce = dialogVlozeni.getTfNazev().getText();
+                final int cisloKraje = this.dejCeleCislo(dialogVlozeni.getTfCislo().getText());
+                final String nazevObce = dialogVlozeni.getTfNazevObce().getText();
+                final String nazevKraje = dialogVlozeni.getTfNazevKraje().getText();
                 final String pscObce = this.dejNeprazdnyRetezec(dialogVlozeni.getTfPSC().getText());
                 final int pocetMuzu = this.dejCeleCislo(dialogVlozeni.getTfPocetMuzu().getText());
                 final int pocetZen = this.dejCeleCislo(dialogVlozeni.getTfPocetZen().getText());
                 final int celkem = pocetMuzu + pocetZen;
 
                 return Optional.of(new Obec(
-                        cisloObce,
+                        cisloKraje,
+                        nazevKraje,
                         nazevObce,
                         pscObce,
                         pocetMuzu,

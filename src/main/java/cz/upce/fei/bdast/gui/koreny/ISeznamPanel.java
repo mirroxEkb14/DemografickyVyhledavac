@@ -2,6 +2,7 @@ package cz.upce.fei.bdast.gui.koreny;
 
 import cz.upce.fei.bdast.agenda.AgendaKraj;
 import cz.upce.fei.bdast.data.Obec;
+import cz.upce.fei.bdast.strom.ETypProhl;
 import cz.upce.fei.bdast.strom.IAbstrTable;
 import cz.upce.fei.bdast.vyjimky.SeznamPanelException;
 import javafx.scene.control.ListCell;
@@ -24,12 +25,6 @@ public interface ISeznamPanel<T> {
     String NAZEV_SEZNAM_FONTU = "Monospaced";
     int DIMENZE_SEZNAM_FONTU = 13;
     String PRAZDNY_RETEZEC = "";
-    /**
-     * Obecné kosntanty používané pro vyhnutí se magickým číslem (magic numbers)
-     */
-    int NULOVA_HODNOTA = 0;
-    int JEDNICKA = 1;
-    int HODNOTA_INKREMENTU = 1;
 
     /**
      * Přidá novou obec do seznamu {@link ListView} a samotného stromu pomocí její agendy {@link AgendaKraj}
@@ -46,12 +41,12 @@ public interface ISeznamPanel<T> {
      * <li> Přidá prvky do {@link IAbstrTable} stromu
      * </ul>
      *
-     * @param strom Strom prvků pro vkládání
+     * @param pocet Počet Prvků
      *
      * @throws SeznamPanelException Když se vyvolá výjimka při vkládání prvku do vnitřního stromu přes
      * {@link AgendaKraj}
      */
-    void obnovSeznam(IAbstrTable<String, Obec> strom) throws SeznamPanelException;
+    void obnovSeznam(int pocet) throws SeznamPanelException;
 
     /**
      * Ověří, zda vstupní klíč je unikátní pro aktuální obsah seznamu
@@ -85,8 +80,10 @@ public interface ISeznamPanel<T> {
     /**
      * Vymaže obsah seznamu a přidá celóu hierarchii stromu do seznamu jako jeden prvek, tj. pouze jedním
      * voláním metody {@code add(E e)}
+     *
+     * @param typ Typem může být buď do šířky, anebo do hloubky
      */
-    void vypisStrom();
+    void vypisStrom(ETypProhl typ);
 
     /**
      * Vymaže výpis celého stromu a vratí výchozí stav, tj. ten, který byl uložen před výpisem
@@ -94,9 +91,18 @@ public interface ISeznamPanel<T> {
     void schovejStrom();
 
     /**
-     * Vyprázdnění celého seznamu
+     * Vyprázdnění celého stromu a grafického seznamu
      */
     void vyprazdni();
+
+    /**
+     * Načte data (obce) ze souboru (.csv)
+     *
+     * @param cesta Cesta do .csv souboru
+     *
+     * @return {@code true}, pokud se podařilo načíst data bez výjimek, v opačném případě {@code false}
+     */
+    boolean nacti(String cesta);
 
     /**
      * Pomocní zjišťovací metoda vrací aktuální mohutnost seznamu
