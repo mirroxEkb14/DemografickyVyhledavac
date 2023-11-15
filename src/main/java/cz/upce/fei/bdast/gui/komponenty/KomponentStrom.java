@@ -20,6 +20,7 @@ import javafx.scene.layout.GridPane;
 import org.jetbrains.annotations.NotNull;
 
 import java.util.Optional;
+import java.util.function.BiConsumer;
 import java.util.function.Consumer;
 // </editor-fold>
 
@@ -39,7 +40,7 @@ public final class KomponentStrom extends TitulkovyPanel {
      */
     private final ChoiceBox<String> iteratorCb = new ChoiceBox<>();
     /**
-     * Definice funkcionálního rozhraní {@link Consumer} pro vytvoření obsahu výběrového pole {@link ChoiceBox}:
+     * Definice funkcionálního rozhraní {@link BiConsumer} pro vytvoření obsahu výběrového pole {@link ChoiceBox}:
      * <ul>
      * <li> Vyčištění a aktualizace položek
      *      <ul>
@@ -57,10 +58,19 @@ public final class KomponentStrom extends TitulkovyPanel {
      *      </ul>
      * </ul>
      */
-    final Consumer<String> tvurceCbIteratoru = t -> {
+    final BiConsumer<String, String> tvurceCbIteratoru = (t, u) -> {
         this.iteratorCb.getItems().clear();
-        this.iteratorCb.getItems().addAll(
-                Titulek.CB_ITERATOR.getNadpis(), t);
+
+        if (t == null || t.isEmpty())
+            this.iteratorCb.getItems().addAll(
+                    Titulek.CB_ITERATOR.getNadpis(), u);
+        else if (u == null || u.isEmpty())
+            this.iteratorCb.getItems().addAll(
+                    Titulek.CB_ITERATOR.getNadpis(), t);
+        else
+            this.iteratorCb.getItems().addAll(
+                    Titulek.CB_ITERATOR.getNadpis(), t, u);
+
         this.iteratorCb.setPrefWidth(PREFEROVANA_SIRKA_POLE);
         this.iteratorCb.getSelectionModel().select(Titulek.CB_ITERATOR.getNadpis());
         this.iteratorCb.setOnAction(actionEvent -> nastavUdalostIterace());
@@ -97,7 +107,8 @@ public final class KomponentStrom extends TitulkovyPanel {
         this.odeberBtn.setOnAction(actionEvent -> nastavUdalostOdebirani());
 
         tvurceCbIteratoru.accept(
-                Titulek.CB_ITERUJ.getNadpis());
+                Titulek.CB_SIRKA.getNadpis(),
+                Titulek.CB_HLOUBKA.getNadpis());
         this.iteratorCb.setDisable(true);
 
         this.prazdnostBtn = new Tlacitko(Titulek.BTN_PRAZDNOST.getNadpis());
@@ -262,17 +273,17 @@ public final class KomponentStrom extends TitulkovyPanel {
 
 // <editor-fold defaultstate="collapsed" desc="Operace Iterace">
     /**
-     * Podle zvolené uživatelem položky rozhodne, zda bude postupovat podle {@link Titulek#CB_ITERUJ} a
-     * provede vyprázdnění stromu, anebo podle {@link Titulek#CB_VRAT} a vratí předchozí stav seznamu
+     * Podle zvolené uživatelem položky rozhodne, zda bude postupovat podle {@link Titulek#CB_SIRKA}/
+     * {@link Titulek#CB_HLOUBKA} a provede vyprázdnění stromu, anebo podle {@link Titulek#CB_VRAT} a vratí
+     * předchozí stav seznamu
      */
     private void nastavUdalostIterace() {
         final String zvolenaAkce = iteratorCb.getSelectionModel().getSelectedItem();
-        if (Titulek.CB_ITERUJ.getNadpis().equalsIgnoreCase(zvolenaAkce)) {
-            seznamPanel.vypisStrom(ETypProhl.HLOUBKA);
-            obnovTlacitkaProIteruj();
-            return;
-        }
-        if (Titulek.CB_VRAT.getNadpis().equalsIgnoreCase(zvolenaAkce)) {
+        if (jeVybranaAkceProProhlizeni(zvolenaAkce)) {
+            final ETypProhl typ = dejVybranyTyp(zvolenaAkce);
+            seznamPanel.vypisStrom(typ);
+            provedObnoveniTlacitekSirkaHloubka();
+        } else if (jeVybranaAkceProVraceni(zvolenaAkce)) {
             seznamPanel.schovejStrom();
             obnovTlacitkaProVrat();
             this.iteratorCb.getSelectionModel().select(Titulek.CB_ITERATOR.getNadpis());
@@ -280,12 +291,50 @@ public final class KomponentStrom extends TitulkovyPanel {
     }
 
     /**
-     * Nastaví veškerá tlačítka na "vypnuto", když uživatel zvolí {@link Titulek#CB_ITERUJ}
+     * Zjišťuje, zda je zadaná položka určena pro prohlížení stromu
      *
-     * <p> Po stisknutí tlačítka {@link Titulek#CB_ITERUJ} tato položka se vysmaže a budou teď pouze dvě:
-     * {@link Titulek#CB_ITERATOR} a {@link Titulek#CB_VRAT}
+     * @param polozka Zvolená položka v {@link ChoiceBox}
+     *
+     * @return {@code true}, pokud je položka pro prohlížení, jinak {@code false}
      */
-    private void obnovTlacitkaProIteruj() {
+    private boolean jeVybranaAkceProProhlizeni(String polozka) {
+        return Titulek.CB_SIRKA.getNadpis().equalsIgnoreCase(polozka)
+                || Titulek.CB_HLOUBKA.getNadpis().equalsIgnoreCase(polozka);
+    }
+
+    /**
+     * Vrací typ prohlížení na základě zvolené položky
+     *
+     * @param polozka Zvolená položka v {@link ChoiceBox}
+     *
+     * @return Typ prohlížení na základě zvolené položky
+     *
+     * @see ETypProhl
+     */
+    private ETypProhl dejVybranyTyp(@NotNull String polozka) {
+        return polozka.equalsIgnoreCase(Titulek.CB_SIRKA.getNadpis())
+                ? ETypProhl.SIRKA : ETypProhl.HLOUBKA;
+    }
+
+    /**
+     * Zjišťuje, zda je zadaná položka určena pro návrat v rámci stromu
+     *
+     * @param polozka Zvolená položka v {@link ChoiceBox}
+     *
+     * @return {@code true}, pokud je položka pro návrat, jinak {@code false}
+     */
+    private boolean jeVybranaAkceProVraceni(String polozka) {
+        return Titulek.CB_VRAT.getNadpis().equalsIgnoreCase(polozka);
+    }
+
+    /**
+     * Nastaví veškerá tlačítka na "vypnuto", když uživatel zvolí buď {@link Titulek#CB_SIRKA}, anebo
+     * {@link Titulek#CB_HLOUBKA}
+     *
+     * <p> Po stisknutí tlačítka {@link Titulek#CB_SIRKA} nebo {@link Titulek#CB_HLOUBKA} se tyto položky vysmažou
+     * a budou teď pouze dvě: {@link Titulek#CB_ITERATOR} a {@link Titulek#CB_VRAT}
+     */
+    private void provedObnoveniTlacitekSirkaHloubka() {
         vypniBtnVloz();
         vypniBtnNajdi();
         vypniBtnOdeber();
@@ -295,14 +344,15 @@ public final class KomponentStrom extends TitulkovyPanel {
         KomponentPrikazy.getInstance().vypniBtnNacti();
 
         tvurceCbIteratoru.accept(
-                Titulek.CB_VRAT.getNadpis());
+                Titulek.CB_VRAT.getNadpis(),
+                null);
     }
 
     /**
      * Nastaví veškerá tlačítka na "zapnuto", když uživatel zvolí {@link Titulek#CB_VRAT}
      *
-     * <p> Po stisknutí tlačítka {@link Titulek#CB_VRAT} tato položka se vysmaže a budou teď pouze dvě:
-     * {@link Titulek#CB_ITERATOR} a {@link Titulek#CB_ITERUJ}
+     * <p> Po stisknutí tlačítka {@link Titulek#CB_VRAT} tato položka se vysmaže a budou teď pouze tři:
+     * {@link Titulek#CB_ITERATOR}, {@link Titulek#CB_SIRKA} a {@link Titulek#CB_HLOUBKA}
      */
     private void obnovTlacitkaProVrat() {
         zapniBtnVloz();
@@ -314,7 +364,8 @@ public final class KomponentStrom extends TitulkovyPanel {
         KomponentPrikazy.getInstance().zapniBtnNacti();
 
         tvurceCbIteratoru.accept(
-                Titulek.CB_ITERUJ.getNadpis());
+                Titulek.CB_SIRKA.getNadpis(),
+                Titulek.CB_HLOUBKA.getNadpis());
     }
 // </editor-fold>
 
