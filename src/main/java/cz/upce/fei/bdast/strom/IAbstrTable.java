@@ -91,18 +91,30 @@ public interface IAbstrTable<K extends Comparable<K>, V> {
     int dejMohutnost(K klic);
 
     /**
-     * Vratí textový řetězec s celým stromem, kde je uvedeno, jaký uzel má jaké potomnky a jaký uzel je čí
-     * potomek/rodič (zda má potomky vlevo/vpravo)
+     * Vratí textový řetězec s celým stromem, kde, v případě vyhledávání do šířky, je uvedeno, na jakém patře se
+     * uzel nachází.
      *
-     * <p> Pokud se do stromu vloží klíče v následujícím poředí: d, c, b, a, e, f; pak výstup má podobu:
-     * <ul>
-     * <li> "d" (kořen)
-     * <li> "c" je vlevo od "d"
-     * <li> "b" je vlevo od "c"
-     * <li> "a" je vlevo od "b"
-     * <li> "e" je vlevo od "d"
-     * <li> "f" je vlevo od "e"
-     * </ul>
+     * <p> Do šířky (Breadth-First Search - BFS):
+     * <br> Patro 1: Obec{..., nazevObec='e', ...}
+     * <br> Patro 2: Obec{..., nazevObec='c', ...}
+     * <br> Patro 2: Obec{..., nazevObec='f', ...}
+     * <br> Patro 3: Obec{..., nazevObec='a', ...}
+     * <br> Patro 3: Obec{..., nazevObec='d', ...}
+     * <br> Patro 3: Obec{..., nazevObec='h', ...}
+     * <br> Patro 4: Obec{..., nazevObec='b', ...}
+     * <br> Patro 4: Obec{..., nazevObec='g', ...}
+     * <br> Patro 4: Obec{..., nazevObec='i', ...}
+     *
+     * <p> Do hloubky (Depth-First Search - DFS), in-order:
+     * <br> Obec{..., nazevObec='a', ...}
+     * <br> Obec{..., nazevObec='b', ...}
+     * <br> Obec{..., nazevObec='c', ...}
+     * <br> Obec{..., nazevObec='d', ...}
+     * <br> Obec{..., nazevObec='e', ...}
+     * <br> Obec{..., nazevObec='f', ...}
+     * <br> Obec{..., nazevObec='g', ...}
+     * <br> Obec{..., nazevObec='h', ...}
+     * <br> Obec{..., nazevObec='i', ...}
      *
      * @param typ Typ prohlížení
      *

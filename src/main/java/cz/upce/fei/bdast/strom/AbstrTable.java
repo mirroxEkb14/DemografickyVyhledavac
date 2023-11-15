@@ -481,6 +481,14 @@ public final class AbstrTable<K extends Comparable<K>, V> implements IAbstrTable
     private class SirkaIterator implements Iterator<V> {
 
         private final IAbstrFifo<Uzel> fronta;
+        /**
+         * Úroveň aktuálního uzlu
+         */
+        private int patro;
+        /**
+         * Konstanta reprezentuje první patro
+         */
+        private final int VYCHOZI_HODNOTA_PATRA = 1;
 
         /**
          * Konstruktor vytvoří instanci iterátoru a inicializuje frontu, pokud strom není prázdný
@@ -489,6 +497,7 @@ public final class AbstrTable<K extends Comparable<K>, V> implements IAbstrTable
             fronta = new AbstrFifo<>();
             if (koren != null)
                 fronta.vloz(koren);
+            patro = VYCHOZI_HODNOTA_PATRA;
         }
 
         /**
@@ -521,10 +530,34 @@ public final class AbstrTable<K extends Comparable<K>, V> implements IAbstrTable
                     fronta.vloz(aktualniUzel.vlevo);
                 if (aktualniUzel.vpravo != null)
                     fronta.vloz(aktualniUzel.vpravo);
+                patro = getPatro(aktualniUzel);
                 return aktualniUzel.hodnota;
             } catch (StrukturaException e) {
                 throw new NoSuchElementException(ChybovaZpravaStromu.PRAZDNA_FRONTA.getZprava());
             }
+        }
+
+        /**
+         * Getter
+         *
+         * @return Číslo patra aktuálního uzlu
+         */
+        public int patro() { return patro; }
+
+        /**
+         * Získání úrovně uzlu
+         *
+         * @param uzel Aktuální uzel
+         *
+         * @return Číslo patra uzlu uvedeného v argumentech metody
+         */
+        private int getPatro(@NotNull Uzel uzel) {
+            int patro = VYCHOZI_HODNOTA_PATRA;
+            while (uzel.rodic != null) {
+                uzel = uzel.rodic;
+                patro++;
+            }
+            return patro;
         }
     }
 // </editor-fold>
@@ -615,60 +648,29 @@ public final class AbstrTable<K extends Comparable<K>, V> implements IAbstrTable
 
 // <editor-fold defaultstate="collapsed" desc="Výpis stromu">
     private final String ODRADKOVANI = "\n";
-    private final String KOREN = " (kořen)";
-    private final String JE_VLEVO_OD = " je vlevo od ";
-    private final String JE_VPRAVO_OD = " je vpravo od ";
+    private final String PREDPIS_PATRO = "Patro ";
+    private final String ODDELOVAC = ": ";
 
     @Override
     public @NotNull String vypisStrom(ETypProhl typ) {
-        final StringBuilder sb = new StringBuilder();
-        vypisStromRekurzivne(koren, null, sb);
-        return sb.toString();
-    }
+        StringBuilder sb = new StringBuilder();
+        Iterator<V> iterator = switch (typ) {
+            case SIRKA -> new SirkaIterator();
+            case HLOUBKA -> new HloubkaIterator();
+        };
 
-    /**
-     * Rekurzivně vytváří textovou reprezentaci podstromu začínajícího daným uzlem
-     *
-     * <p> Popis logiky podle jednotlivých bloků kódu:
-     * <ol>
-     * <li> Ověří aktuální uzel na {@code null}
-     *      <ul>
-     *      <li> Pokud podmínka je platná, metoda se končí
-     *      </ul>
-     * <li> Přidá klíč aktuálního uzlu do textové reprezentace
-     * <li> Ověří, zda je aktuální uzel kořenem stromu
-     *      <ul>
-     *      <li> Přidá informaci o tom, zda je vlevo nebo vpravo od rodiče
-     *      </ul>
-     * <li> Pokud kořenem je
-     *      <ul>
-     *      <li> Přidá informaci o tom, že je kořenovým prvkem
-     *      </ul>
-     * <li> Přidá odřádkovaní
-     * <li> Rekurzivně zpracuje levý a pravý podstrom
-     * </ol>
-     *
-     * @param uzel Aktuální uzel, pro který se vytváří textová reprezentace
-     * @param rodic Rodič aktuálního uzlu ({@code null}, pokud je uzel kořenem)
-     * @param sb {@link StringBuilder} pro sestavení textové reprezentace
-     */
-    private void vypisStromRekurzivne(Uzel uzel, Uzel rodic, StringBuilder sb) {
-        if (uzel == null)
-            return;
-
-        sb.append(uzel.klic);
-        if (rodic != null) {
-            if (uzel == rodic.vlevo)
-                sb.append(JE_VLEVO_OD).append(rodic.klic);
-            else
-                sb.append(JE_VPRAVO_OD).append(rodic.klic);
-        } else {
-            sb.append(KOREN);
+        while (iterator.hasNext()) {
+            switch (typ) {
+                case SIRKA -> {
+                    final V hodnota = iterator.next();
+                    final int patro = ((SirkaIterator) iterator).patro();
+                    sb.append(PREDPIS_PATRO).append(patro).append(ODDELOVAC).append(hodnota).append(ODRADKOVANI);
+                }
+                case HLOUBKA -> sb.append(iterator.next()).append(ODRADKOVANI);
+            }
         }
-        sb.append(ODRADKOVANI);
 
-        vypisStromRekurzivne(uzel.vlevo, uzel, sb);
-        vypisStromRekurzivne(uzel.vpravo, uzel, sb);
+        return sb.toString();
     }
 // </editor-fold>
 

@@ -8,6 +8,6 @@
 
 1) posloupnost přidání: e, c, d, a, b, f, h, g, i
 
-2) posloupnost vypsání do šířky:
+2) posloupnost vypsání do šířky: e, c, f, a, d, h, b, g, i
 
-3) posloupnost vypsání do hloubky (in-order):
+3) posloupnost vypsání do hloubky (in-order): a, b, c, d, e, f, g, h, i
