@@ -2,7 +2,10 @@ package cz.upce.fei.bdast.perzistence;
 
 import cz.upce.fei.bdast.strom.IAbstrTable;
 
+import java.io.File;
 import java.io.IOException;
+import java.nio.file.Files;
+import java.nio.file.Paths;
 
 /**
  * Rozhraní pro perzistenci dat do/z CSV souboru
@@ -17,6 +20,7 @@ public interface IPerzistence<K extends Comparable<K>, V> {
      */
     String CESTA_VZOR = "src/main/java/cz/upce/fei/bdast/util/vzor.csv";
     String CESTA_KRAJE = "src/main/java/cz/upce/fei/bdast/util/kraje.csv";
+    String CESTA_ULOZISTE = "src/main/java/cz/upce/fei/bdast/util/uloziste.csv";
     /**
      * Oddělovač (delimiter) atributů v CSV souboru.
      */
@@ -55,4 +59,25 @@ public interface IPerzistence<K extends Comparable<K>, V> {
      * @throws IOException Pokud dojde k chybě při zápisu do souboru
      */
     boolean ulozCsv(IAbstrTable<K, V> strom) throws IOException;
+
+    /**
+     * Zjišťuje, zda soubor na dané cestě existuje a není prázdný
+     *
+     * @param cesta Cesta k souboru
+     *
+     * @return {@code true}, pokud soubor existuje a není prázdný; jinak {@code false}
+     */
+    static boolean jeSoubor(String cesta) {
+        final File soubor = new File(cesta);
+        if (soubor.exists()) {
+            try {
+                final long velikost = Files.size(Paths.get(cesta));
+                return velikost > 0;
+            } catch (IOException e) {
+                return false;
+            }
+        } else {
+            return false;
+        }
+    }
 }

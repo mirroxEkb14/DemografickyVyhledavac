@@ -32,12 +32,14 @@ public enum Titulek {
     HLAVICKA_TITULKOVEHO_PANELU_ODEBIRANI("Zadávání názvu obce"),
     KOMPONENT_PRIKAZY("Příkazy"),
     BTN_GENERUJ("Generuj"),
-    CB_NACTENI("Načtení"),
+    CB_NACTI("Načtí"),
     CB_VZOR("vzor.csv"),
     CB_KRAJE("kraje.csv"),
+    CB_ULOZISTE("uložiště.csv"),
     LABEL_POCET_PRVKU("Počet: "),
     HLAVICKA_DIALOGU_GENERATORU("Generátor Obcí"),
-    HLAVICKA_TITULKOVEHO_PANELU_GENERATORU("Zadávání počtu obcí");
+    HLAVICKA_TITULKOVEHO_PANELU_GENERATORU("Zadávání počtu obcí"),
+    BTN_ULOZ("Ulož");
 
     private final String nadpis;
 

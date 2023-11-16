@@ -1,12 +1,13 @@
 package cz.upce.fei.bdast.perzistence;
 
 import cz.upce.fei.bdast.data.Obec;
+import cz.upce.fei.bdast.strom.ETypProhl;
 import cz.upce.fei.bdast.strom.IAbstrTable;
 import cz.upce.fei.bdast.vyjimky.StromException;
+import org.jetbrains.annotations.NotNull;
 
-import java.io.BufferedReader;
-import java.io.FileReader;
-import java.io.IOException;
+import java.io.*;
+import java.util.Iterator;
 
 /**
  * Implementace rozhraní {@link IPerzistence} pro perzistenci dat obcí do/z CSV souboru
@@ -53,7 +54,21 @@ public final class ObecPerzistence implements IPerzistence<String, Obec> {
      * {@inheritDoc}
      */
     @Override
-    public boolean ulozCsv(IAbstrTable<String, Obec> strom) throws IOException {
-        return false;
+    public boolean ulozCsv(@NotNull IAbstrTable<String, Obec> strom) throws IOException {
+        try (BufferedWriter writer = new BufferedWriter(new FileWriter(IPerzistence.CESTA_ULOZISTE))) {
+            final Iterator<Obec> iterator = strom.vytvorIterator(ETypProhl.HLOUBKA);
+            while (iterator.hasNext()) {
+                final Obec obec = iterator.next();
+                writer.write(obec.getCisloKraje() + this.ODDELOVAC_ATRIBUTU);
+                writer.write(obec.getNazevKraje() + this.ODDELOVAC_ATRIBUTU);
+                writer.write(obec.getPsc() + this.ODDELOVAC_ATRIBUTU);
+                writer.write(obec.getNazevObce() + this.ODDELOVAC_ATRIBUTU);
+                writer.write(obec.getPocetMuzu() + this.ODDELOVAC_ATRIBUTU);
+                writer.write(obec.getPocetZen() + this.ODDELOVAC_ATRIBUTU);
+                writer.write(obec.getCelkem() + this.ODDELOVAC_ATRIBUTU);
+                writer.newLine();
+            }
+        }
+        return true;
     }
 }

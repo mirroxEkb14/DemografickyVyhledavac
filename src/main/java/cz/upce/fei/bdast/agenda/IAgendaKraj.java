@@ -26,6 +26,13 @@ public interface IAgendaKraj<K extends Comparable<K>, V> {
     boolean importDat(String cesta);
 
     /**
+     * Provede export dat do textového souboru
+     *
+     * @return {@code true}, pokud se data úspěšně uloží do souboru, v případě nějaké výjimky - {@code false}
+     */
+    boolean exportDat();
+
+    /**
      * Vyhledání obce
      *
      * @param nazevObce Název hledané obce

@@ -456,11 +456,6 @@ public final class AbstrTable<K extends Comparable<K>, V> implements IAbstrTable
     private void snizMohutnost(@NotNull Uzel uzel) { uzel.mohutnost--; }
 // </editor-fold>
 
-    /**
-     * Vytvoří nový iterátor pro průchod binárním stromem v zadaném režimu
-     *
-     * @param typ Způsob průchodu stromem - buď šířka nebo hloubka
-     */
     @Override
     public Iterator<V> vytvorIterator(ETypProhl typ) {
         return switch (typ) {

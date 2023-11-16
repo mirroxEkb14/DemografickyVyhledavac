@@ -10,6 +10,7 @@ import javafx.scene.control.ListView;
 import javafx.scene.control.SelectionMode;
 import javafx.scene.text.Font;
 import org.jetbrains.annotations.NotNull;
+import java.io.IOException;
 
 import java.util.Optional;
 
@@ -103,6 +104,14 @@ public interface ISeznamPanel<T> {
      * @return {@code true}, pokud se podařilo načíst data bez výjimek, v opačném případě {@code false}
      */
     boolean nacti(String cesta);
+
+    /**
+     * Uloží data do .csv souboru
+     *
+     * @return {@code true}, pokud proces uložení proběhl úspěšně, v případě vyhození {@link IOException}
+     * - {@code false}
+     */
+    boolean uloz();
 
     /**
      * Pomocní zjišťovací metoda vrací aktuální mohutnost seznamu

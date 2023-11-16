@@ -608,33 +608,33 @@ public class AbstrTableTest {
      * Ověří, zda iterátor vrací očekávané hodnoty v pořadí "a", "c", "b", "p", "t", "s", "x", "w"
      *
      * <p> Přehled stromu:
-     *         a
+     *         d
      *        / \
      *       /   \
      *      b     x
      *     / \   / \
-     *    c   p s   w
-     *         /
-     *        t
+     *    a   c s   z
+     *           \
+     *            t
      */
     @Test
     public void test_05_05_vytvorIterator() {
         try {
             IAbstrTable<String, Integer> novyStrom = new AbstrTable<>();
 
-            novyStrom.vloz("a", 1);
+            novyStrom.vloz("d", 1);
             novyStrom.vloz("x", 2);
             novyStrom.vloz("s", 3);
-            novyStrom.vloz("c", 4);
-            novyStrom.vloz("b", 5);
-            novyStrom.vloz("w", 6);
+            novyStrom.vloz("b", 4);
+            novyStrom.vloz("a", 5);
+            novyStrom.vloz("z", 6);
             novyStrom.vloz("t", 7);
-            novyStrom.vloz("p", 8);
+            novyStrom.vloz("c", 8);
 
-            String[] expected = {"a", "c", "b", "p", "t", "s", "x", "w"};
-            Iterator<String> iterator = strom.vytvorIterator(ETypProhl.HLOUBKA);
+            int[] expected = {5, 4, 8, 1, 3, 7, 2, 6};
+            Iterator<Integer> iterator = novyStrom.vytvorIterator(ETypProhl.HLOUBKA);
             while (iterator.hasNext()) {
-                String result = iterator.next();
+                int result = iterator.next();
                 assertEquals(expected[index], result);
                 index++;
             }

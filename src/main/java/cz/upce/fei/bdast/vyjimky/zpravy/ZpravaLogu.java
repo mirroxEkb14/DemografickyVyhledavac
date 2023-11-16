@@ -11,7 +11,10 @@ public enum ZpravaLogu {
     LOG_GENERATOR_SPATNY_POCET("Špatně zvolá hodnota: počet musí být kladné celé číslo"),
     LOG_GENERATOR_OBNOVENI("Chyba při vkládání prvků"),
     LOG_NACTENI_VZORU("Chyba při čtení dat ze vzorového .csv souboru: název obce musí být unikátní"),
-    LOG_NACTENI_KRAJE("Chyba při čtení dat ze .csv souboru krajů: název obce musí být unikátní");
+    LOG_NACTENI_KRAJE("Chyba při čtení dat ze .csv souboru krajů: název obce musí být unikátní"),
+    LOG_NACTENI_ULOZISTE("Chyba při čtení dat ze .csv souboru uložiště: název obce musí být unikátní"),
+    LOG_USPESNE_ULOZENI("Data byla uložena do souboru"),
+    LOG_CHYBNE_ULOZENI("Chyba: data nebyla uložena");
 
     private final String zprava;
 

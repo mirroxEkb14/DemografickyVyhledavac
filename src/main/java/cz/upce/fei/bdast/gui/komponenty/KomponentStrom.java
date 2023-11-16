@@ -211,6 +211,8 @@ public final class KomponentStrom extends TitulkovyPanel {
         if (jeVypnutoBtnIteruj()) zapniBtnIteruj();
         if (jeVypnutoBtnPrazdnost()) zapniBtnPrazdnost();
         if (jeVypnutoBtnZrus()) zapniBtnZrus();
+        if (KomponentPrikazy.getInstance().jeVypnutoBtnUloz())
+            KomponentPrikazy.getInstance().zapniBtnUloz();
     }
 // </editor-fold>
 
@@ -267,6 +269,7 @@ public final class KomponentStrom extends TitulkovyPanel {
             vypniBtnIteruj();
             vypniBtnPrazdnost();
             vypniBtnZrus();
+            KomponentPrikazy.getInstance().vypniBtnUloz();
         }
     }
 // </editor-fold>
@@ -342,6 +345,7 @@ public final class KomponentStrom extends TitulkovyPanel {
         vypniBtnZrus();
         KomponentPrikazy.getInstance().vypniBtnGeneruj();
         KomponentPrikazy.getInstance().vypniBtnNacti();
+        KomponentPrikazy.getInstance().vypniBtnUloz();
 
         tvurceCbIteratoru.accept(
                 Titulek.CB_VRAT.getNadpis(),
@@ -362,6 +366,7 @@ public final class KomponentStrom extends TitulkovyPanel {
         zapniBtnZrus();
         KomponentPrikazy.getInstance().zapniBtnGeneruj();
         KomponentPrikazy.getInstance().zapniBtnNacti();
+        KomponentPrikazy.getInstance().zapniBtnUloz();
 
         tvurceCbIteratoru.accept(
                 Titulek.CB_SIRKA.getNadpis(),
@@ -399,6 +404,7 @@ public final class KomponentStrom extends TitulkovyPanel {
         vypniBtnIteruj();
         vypniBtnPrazdnost();
         vypniBtnZrus();
+        KomponentPrikazy.getInstance().vypniBtnUloz();
     }
 // </editor-fold>
 

@@ -22,4 +22,6 @@ public final class Tlacitko extends Button {
         this.setText(btnText);
         this.setPrefWidth(PREFEROVANA_SIRKA_TLACITKA);
     }
+
+    public static double getPrefSirka() { return PREFEROVANA_SIRKA_TLACITKA; }
 }

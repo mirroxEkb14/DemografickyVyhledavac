@@ -62,6 +62,15 @@ public final class AgendaKraj implements IAgendaKraj<String, Obec> {
     }
 
     @Override
+    public boolean exportDat() {
+        try {
+            return perzistence.ulozCsv(strom);
+        } catch (IOException ex) {
+            return false;
+        }
+    }
+
+    @Override
     public Obec najdi(String nazevObce) throws AgendaKrajException {
         try {
             return strom.najdi(nazevObce);

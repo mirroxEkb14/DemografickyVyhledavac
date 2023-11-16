@@ -167,6 +167,9 @@ public final class SeznamPanel extends ListView<String> implements ISeznamPanel<
     }
 
     @Override
+    public boolean uloz() { return agendaKraj.exportDat(); }
+
+    @Override
     public int dejMohutnost() { return this.getItems().size(); }
 
     @Override
