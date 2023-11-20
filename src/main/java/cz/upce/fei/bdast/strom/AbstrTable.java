@@ -450,7 +450,7 @@ public final class AbstrTable<K extends Comparable<K>, V> implements IAbstrTable
     }
 // </editor-fold>
 
-// <editor-fold defaultstate="collapsed" desc="Pomocné metody změnu mohutnosti uzlů - zvys()/sniz()">
+// <editor-fold defaultstate="collapsed" desc="Pomocné metody změnu mohutnosti uzlů: zvys()/sniz()">
     private void zvysMohutnost(@NotNull Uzel uzel) { uzel.mohutnost++; }
 
     private void snizMohutnost(@NotNull Uzel uzel) { uzel.mohutnost--; }
@@ -557,7 +557,7 @@ public final class AbstrTable<K extends Comparable<K>, V> implements IAbstrTable
     }
 // </editor-fold>
 
-// <editor-fold defaultstate="collapsed" desc="Iterátor do hloubky typu in-order">
+// <editor-fold defaultstate="collapsed" desc="Iterátor do hloubky (in-order)">
     /**
      * Iterátor pro průchod stromem do hloubky (in-order)
      *

@@ -1,5 +1,6 @@
 package cz.upce.fei.bdast.agenda;
 
+// <editor-fold defaultstate="collapsed" desc="Importy">
 import cz.upce.fei.bdast.data.Obec;
 import cz.upce.fei.bdast.generator.Generator;
 import cz.upce.fei.bdast.generator.ObecGenerator;
@@ -15,6 +16,7 @@ import org.jetbrains.annotations.NotNull;
 
 import java.io.IOException;
 import java.util.Iterator;
+// </editor-fold>
 
 /**
  * Tato třída slouží k manipulaci s daty o obcích kraje. Slouží také jako rozhraní mezi uživatelem a datovou
@@ -125,6 +127,31 @@ public final class AgendaKraj implements IAgendaKraj<String, Obec> {
     @Override
     public void zrus() { strom.zrus(); }
 
+// <editor-fold defaultstate="collapsed" desc="Metoda: String VypisStrom(ETypProhl typ)">
+    private final String POPISEK_VYSTUPU = "Posloupnost výstupu: ";
+    private final String ODDELOVAC_VYSTUPU = ", ";
+
     @Override
-    public @NotNull String vypisStrom(ETypProhl typ) { return strom.vypisStrom(typ); }
+    public @NotNull String vypisStrom(ETypProhl typ) {
+        return strom.vypisStrom(typ) + dejVystupPosloupnosti(typ);
+    }
+
+    /**
+     * Vrací textovou posloupnost prvků stromu v zadaném typu průchodu
+     *
+     * @param typ Typ průchodu stromem ({@link ETypProhl#SIRKA} nebo {@link ETypProhl#HLOUBKA})
+     *
+     * @return Textový výstup posloupnosti prvků stromu
+     */
+    private @NotNull String dejVystupPosloupnosti(ETypProhl typ) {
+        final StringBuilder sb = new StringBuilder(POPISEK_VYSTUPU);
+        final Iterator<Obec> iterator = strom.vytvorIterator(typ);
+        while (iterator.hasNext()) {
+            sb.append(iterator.next().getNazevObce());
+            if (iterator.hasNext())
+                sb.append(ODDELOVAC_VYSTUPU);
+        }
+        return sb.toString();
+    }
+// </editor-fold>
 }
