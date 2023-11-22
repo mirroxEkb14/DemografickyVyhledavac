@@ -23,7 +23,8 @@
 5.1. nahradí odebraný prvek prvkem s nejnižším klíčem v pravém podstromu tohoto
 odebraného prvku;
 5.2. pokud odebraný prvek nemá pravého potomka, spojí levého potomka s rodičem;
-5.3. např. bych odebral "h", pak "g", tak odebrané "g" se nahradí prvkem "e"
+5.3. např. by byl odebráno "h", pak "g" (nemá tedy pravý podstrom), tak odebrané
+"g" se nahradí levým synem "e"
 
 --První Verze
 
