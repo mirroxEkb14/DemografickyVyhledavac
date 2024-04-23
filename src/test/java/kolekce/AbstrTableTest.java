@@ -1,8 +1,8 @@
 package kolekce;
 
-import cz.upce.fei.bdast.strom.*;
-import cz.upce.fei.bdast.vyjimky.StromException;
-import cz.upce.fei.bdast.vyjimky.zpravy.ChybovaZpravaStromu;
+import cz.upce.fei.bdats.strom.*;
+import cz.upce.fei.bdats.vyjimky.StromException;
+import cz.upce.fei.bdats.vyjimky.zpravy.ChybovaZpravaStromu;
 import org.junit.*;
 
 import java.util.Iterator;
