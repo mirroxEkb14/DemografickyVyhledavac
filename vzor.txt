@@ -1,0 +1,54 @@
+
+--Druhá verze
+
+1) anglická abeceda: a, b, c, d, e, f, g, h, i, j, k, l, m, n, o, p, q, r, s, t, u, v, w, x, y, z
+
+2) posloupnost přidání: i, g, e, h, c, f, a, d, n, t, s, q, u
+
+            i
+           / \
+          g   n
+         / \   \
+        e   h   t
+       / \     / \
+      c   f   s   u
+     / \     /
+    a   d   q
+
+3) posloupnost výpisu do šířky: i, g, n, e, h, t, c, f, s, u, a, d, q
+
+4) posloupnost výpisu do hloubky (in-order): a, c, d, e, f, g, h, i, n, q, s, t, u
+
+5) odeber(K klic):
+5.1. nahradí odebraný prvek prvkem s nejnižším klíčem v pravém podstromu tohoto
+odebraného prvku;
+5.2. pokud odebraný prvek nemá pravého potomka, spojí levého potomka s rodičem;
+5.3. např. by byl odebráno "h", pak "g" (nemá tedy pravý podstrom), tak odebrané
+"g" se nahradí levým synem "e"
+
+--První Verze
+
+1) posloupnost přidání: e, c, d, a, b, f, h, g, i
+
+           e
+         /   \
+        c     f
+       / \     \
+      a   d     h
+       \       / \
+        b     g   i
+
+2) posloupnost vypsání do šířky: e, c, f, a, d, h, b, g, i
+
+3) posloupnost vypsání do hloubky (in-order): a, b, c, d, e, f, g, h, i
+
+4) vloz.csv soubor:
+10;Pardubicky;8113;e;1;1;2
+10;Pardubicky;8113;c;1;1;2
+10;Pardubicky;8113;d;1;1;2
+10;Pardubicky;8113;a;1;1;2
+10;Pardubicky;8113;b;1;1;2
+10;Pardubicky;8113;f;1;1;2
+10;Pardubicky;8113;h;1;1;2
+10;Pardubicky;8113;g;1;1;2
+10;Pardubicky;8113;i;1;1;2
